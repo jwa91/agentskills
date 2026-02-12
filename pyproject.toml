@@ -1,7 +1,7 @@
 [project]
 name = "agentskills"
 version = "0.1.0"
-description = "Personal collection of agent skills by jwa91."
+description = "Personal collection of agent skills."
 requires-python = ">=3.11"
 dependencies = []
 
