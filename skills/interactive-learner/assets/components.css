@@ -801,6 +801,7 @@
 
 .mermaid-wrap svg {
   max-width: 100%;
+  min-height: 200px;
 }
 
 .mermaid-note {

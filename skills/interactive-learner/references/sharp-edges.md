@@ -80,6 +80,14 @@
 **Problem:** The video IS the lesson, with a quiz after.
 **Fix:** Videos complement interactive content, never replace it. Use `recommended-deep-dive` for longer videos students can watch optionally.
 
+### Mermaid LR Direction
+**Problem:** Using `graph LR` (left-right) in concept maps. The lesson container is portrait-oriented, so LR diagrams become too wide and collapse to a tiny, unreadable size.
+**Fix:** Always use `graph TD` (top-down) for concept maps and mind maps. TD flows naturally within the narrow content column.
+
+### No Context Before Exercises
+**Problem:** Jumping straight into quizzes, matching, or fill-blanks without any narrative explanation first. The session feels like a game, not learning.
+**Fix:** Start each session with a story-card or side-by-side explanation that provides context. Don't open with a scored exercise unless it's a deliberate "predict before you learn" quiz. Ensure at least 30% of the session is explanatory content (story-cards, side-by-side, concept-maps) before the interactive exercises begin.
+
 ## Structural Anti-Patterns
 
 ### Missing Motivation

@@ -123,6 +123,8 @@ Mermaid.js diagram rendered client-side. Use for showing relationships between i
 {"type": "concept-map", "title": "Architecture", "mermaid": "graph TD\n  A[Client] --> B[API Server]\n  B --> C[etcd]\n  B --> D[Scheduler]"}
 ```
 
+**Direction guidance:** Always use `graph TD` (top-down) for concept maps. The lesson container is portrait-oriented, so `graph LR` (left-right) produces diagrams that are too wide and collapse to an unreadable size.
+
 ### mind-map
 Mermaid.js mindmap (hierarchical overview). Use for topic maps, prerequisite trees, and conceptual scaffolding.
 ```json

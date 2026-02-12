@@ -283,19 +283,19 @@ def render_matching(cfg, idx):
     )
 
     js = """const mSt = {};
-function mLeft(el, gid) {{
+function mLeft(el, gid) {
   if (el.classList.contains('matched')) return;
   document.querySelectorAll('#match_' + gid + ' .m-left .m-item').forEach((i) => i.classList.remove('selected'));
   el.classList.add('selected');
   if (!mSt[gid]) mSt[gid] = {};
   mSt[gid].left = el;
-}}
+}
 
-function mRight(el, gid) {{
+function mRight(el, gid) {
   if (!mSt[gid] || !mSt[gid].left || el.classList.contains('matched')) return;
   const left = mSt[gid].left;
 
-  if (left.dataset.match === el.dataset.match) {{
+  if (left.dataset.match === el.dataset.match) {
     left.classList.remove('selected');
     left.classList.add('matched');
     el.classList.add('matched');
@@ -308,14 +308,14 @@ function mRight(el, gid) {{
     addXp(10);
     updateScore();
     mSt[gid].left = null;
-  }} else {{
+  } else {
     el.classList.add('wrong-m');
     left.classList.add('wrong-m');
-    setTimeout(() => {{
+    setTimeout(() => {
       el.classList.remove('wrong-m');
       left.classList.remove('wrong-m');
-    }}, 400);
-  }}
+    }, 400);
+  }
 }"""
 
     return h, js

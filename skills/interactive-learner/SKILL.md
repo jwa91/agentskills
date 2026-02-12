@@ -271,7 +271,7 @@ Max 2 embedded videos per lesson. But you CAN recommend additional videos/resour
 
 1. **Research first.** Never teach from assumptions. Find authoritative, recent sources.
 2. **Bridge from known knowledge.** Read the student profile. Connect every new concept to something they already understand.
-3. **Challenge before explanation** (default). Let the student attempt or predict before you explain. Discovery beats lecture.
+3. **Challenge before explanation** (default). Let the student attempt or predict before you explain. Discovery beats lecture. But always provide narrative context first — start each session with a story-card explanation, not a scored exercise. Ensure at least 30% of the session is explanatory content (story-cards, side-by-side, concept-maps) before interactive exercises.
 4. **Mostly click-based.** The majority of interactions should be click/drag/select. But sprinkle in open-ended moments — they're powerful when used intentionally.
 5. **Open answers are a tool, not a crutch.** Use explain-back, roleplay, or open-reflection for 1-3 moments per session where real thinking matters. The agent evaluates these in the debrief. Never use them as filler.
 6. **Max 6 new terms per session.** Each needs an analogy bridging to what the student knows.
