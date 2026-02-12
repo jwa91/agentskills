@@ -106,7 +106,7 @@ Save the curriculum and show it to the student as an interactive dashboard:
    uv run .agents/skills/interactive-learner/scripts/build-dashboard.py --open
    ```
 
-Let the student react, reprioritize, skip things they know. This is collaborative.
+**STOP here.** Ask the student to review the curriculum in the dashboard. Let them react, reprioritize, or skip sessions they already know. Do not proceed to step 4 until the student confirms the plan.
 
 See [course-design-guide.md](references/course-design-guide.md) for topic-type → component mapping and session patterns.
 

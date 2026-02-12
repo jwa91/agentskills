@@ -83,6 +83,19 @@ Two-column comparison. Use for before/after, tool A vs B, wrong vs right.
  "right": {"header": "With Kubernetes", "icon": "☸️", "items": ["Automated management", "Self-healing"], "bullet": "☸️"}}
 ```
 
+### video-embed
+YouTube video thumbnail with click-to-watch link. Use for short, curated videos (max 2 per lesson). Pair with `recommended-deep-dive` for optional extras.
+```json
+{"type": "video-embed", "youtube_id": "dQw4w9WgXcQ", "title": "Watch This",
+ "intro": "This 5-minute video nails the mental model.",
+ "start": 30, "skip_label": "Skip video"}
+```
+- `youtube_id` (required): the YouTube video ID (the part after `v=`)
+- `title` (optional, default `"Watch This"`): heading above the thumbnail
+- `intro` (optional): short text above the thumbnail explaining why to watch
+- `start` (optional, default `0`): start time in seconds
+- `skip_label` (optional, default `"Skip video"`): text for the skip link
+
 ### timeline
 Horizontal scrollable timeline. Use for history, processes, evolution, sequences.
 ```json
