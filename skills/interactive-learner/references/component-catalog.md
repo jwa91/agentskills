@@ -48,10 +48,16 @@ Drag items into correct order. Items provided in correct order, shuffled automat
 Custom simulation with entities, buttons, and log. Handlers are raw JS. Use for complex interactive demonstrations.
 ```json
 {"type": "simulator", "title": "Container Crash Sim",
+ "description": "See what happens when containers fail",
  "entities": [{"id": "web1", "label": "Web App 1", "icon": "🐳"}],
  "actions": [{"label": "Kill Container", "icon": "💥", "type": "danger", "handler_key": "crash"}],
- "handlers": {"crash": "const boxes=document.querySelectorAll('.server-box.healthy');..."}}
+ "handlers": {"crash": "const el=document.querySelector('.srv.healthy'); if(el){el.classList.remove('healthy');el.classList.add('crashed');el.querySelector('.srv-icon').textContent='💀';simLog_5('Container web1 crashed!','error');}"}}
 ```
+
+**Available in handlers:**
+- `simLog_{idx}(msg, type)` — append to the simulator log. `type` can be `"info"`, `"error"`, `"success"`, or `"warning"`. The `{idx}` is the section index (1-based position in the `sections` array).
+- Entity DOM IDs follow the pattern: `sim_{idx}_{entity_id}` (e.g., `sim_5_web1`)
+- CSS classes on entities: `srv` (base), `healthy` (initial state). Add `crashed`, `warning`, etc. in handlers.
 
 ---
 

@@ -114,7 +114,7 @@ See [course-design-guide.md](references/course-design-guide.md) for topic-type �
 
 Build a lesson config using the component catalog:
 
-- See [component-catalog.md](references/component-catalog.md) for all components and their JSON schemas
+- **MANDATORY: Before generating JSON for ANY component, read its schema in [component-catalog.md](references/component-catalog.md). Do NOT guess field names. Every component has different required fields — using wrong field names produces empty/broken output that silently fails.**
 - See [sharp-edges.md](references/sharp-edges.md) for anti-patterns to avoid
 - Mix component types — no two consecutive sections of the same type
 - Include at least one moment of surprise, delight, or creative challenge per session
@@ -205,6 +205,14 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
       ]
     },
     { "type": "vocab-cards", "terms": [{ "term": "Pod", "icon": "🫛", "definition": "...", "analogy": "..." }] },
+    { "type": "video-embed", "youtube_id": "dQw4w9WgXcQ", "title": "Watch This", "intro": "Quick overview." },
+    { "type": "side-by-side", "title": "A vs B",
+      "left": {"header": "Option A", "icon": "🔵", "items": ["Advantage 1", "Advantage 2"]},
+      "right": {"header": "Option B", "icon": "🟢", "items": ["Advantage 1", "Advantage 2"]}},
+    { "type": "matching", "title": "Match Terms", "pairs": [
+      {"term": "Concept A", "definition": "Explanation A"},
+      {"term": "Concept B", "definition": "Explanation B"}
+    ], "right_order": [1, 0]},
     {
       "type": "explain-back",
       "prompt": "In one sentence, explain why you can't just use Docker alone for 50 containers.",

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build a lesson HTML file from a JSON config + shell template + component renderers.
+"""Build a lesson HTML file from a JSON config + shell template + component renderers.
 
 Usage: uv run .agents/skills/interactive-learner/scripts/build-lesson.py <lesson.json> [--output <path>] [--open]
 """
@@ -248,6 +247,12 @@ def render_quiz(cfg, idx):
 
 def render_matching(cfg, idx):
     pairs = cfg.get("pairs", [])
+    if pairs and not pairs[0].get("term"):
+        raise ValueError(
+            "matching pairs require 'term' and 'definition' keys. "
+            "Got keys: " + str(list(pairs[0].keys()))
+            + ". (Common mistake: using 'left'/'right' instead of 'term'/'definition')"
+        )
     title = html.escape(cfg.get("title", "Match the Concepts"))
 
     left_html = ""
@@ -414,6 +419,18 @@ def render_side_by_side(cfg, idx):
     title = html.escape(cfg.get("title", "Comparison"))
     left = cfg.get("left", {})
     right = cfg.get("right", {})
+    if not isinstance(left, dict) or not isinstance(right, dict):
+        raise ValueError(
+            "side-by-side requires 'left' and 'right' as objects with "
+            "'header' and 'items' keys. Got top-level keys: "
+            + str(list(cfg.keys()))
+        )
+    if not left.get("items") and not right.get("items"):
+        raise ValueError(
+            "side-by-side 'left' and 'right' must each have an 'items' array. "
+            "Got left keys: " + str(list(left.keys()))
+            + ", right keys: " + str(list(right.keys()))
+        )
 
     def render_column(col, cls):
         header = html.escape(str(col.get("header", "")))
@@ -467,6 +484,12 @@ def render_video_embed(cfg, idx):
 
 
 def render_simulator(cfg, idx):
+    if "steps" in cfg or "options" in cfg:
+        raise ValueError(
+            "simulator does not support 'steps' or 'options'. "
+            "It requires 'entities', 'actions', and 'handlers' (raw JS). "
+            "See component-catalog.md for the correct schema."
+        )
     title = html.escape(cfg.get("title", "Simulator"))
     description = cfg.get("description", "")
     entities = cfg.get("entities", [])

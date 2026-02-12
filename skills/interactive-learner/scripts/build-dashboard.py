@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build a student dashboard HTML from .learner-progress.json.
+"""Build a student dashboard HTML from .learner-progress.json.
 
 Usage: uv run .agents/skills/interactive-learner/scripts/build-dashboard.py [--progress <path>] [--output <path>] [--open]
 
@@ -11,15 +10,13 @@ Reads progress data and generates a visual dashboard showing:
 - Achievement badges
 """
 
-import json
-import sys
-import os
-import html
-import subprocess
 import argparse
-import math
-from pathlib import Path
+import html
+import json
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 SHELL_PATH = SKILL_DIR / "assets" / "dashboard-shell.html"

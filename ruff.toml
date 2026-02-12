@@ -51,6 +51,13 @@ convention = "google"
 "tests/**" = ["D"]
 "src/agentskills/cli.py" = ["PLC0415"]
 
+# Skill scripts use inline HTML/JS templates that produce unavoidable long lines.
+# Renderer functions are internal (dispatched via RENDERERS dict) and don't need docstrings.
+"skills/**/scripts/build-lesson.py" = ["E501", "D103", "PLC0415"]
+"skills/**/scripts/build-dashboard.py" = ["E501", "D103", "B905", "PLC0415"]
+"skills/**/scripts/find-videos.py" = ["E501", "D103", "SIM105"]
+"skills/**/scripts/progress.py" = ["E501", "D103"]
+
 [format]
 quote-style = "double"
 indent-style = "space"

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Student progress tracker with concept-level mastery and dynamic achievements.
+"""Student progress tracker with concept-level mastery and dynamic achievements.
 
 Usage:
   uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <name>          # Create new student profile
@@ -16,10 +15,8 @@ Usage:
   uv run .agents/skills/interactive-learner/scripts/progress.py set-curriculum <course> <curriculum.json>  # Save curriculum
 """
 
-import json
-import sys
-import os
 import argparse
+import json
 import math
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -121,7 +118,11 @@ def show(show_concepts=False):
 
 def update_concept_mastery(data, course, concepts_dict):
     """Update per-concept mastery scores.
-    concepts_dict: {"concept-id": score} where score is 0.0-1.0
+
+    Args:
+        data: Progress data dict.
+        course: Course identifier.
+        concepts_dict: {"concept-id": score} where score is 0.0-1.0.
     """
     if "concept_mastery" not in data:
         data["concept_mastery"] = {}
@@ -280,8 +281,11 @@ def update_session(course, session, score, max_score, concepts_json=None):
 
 
 def grant_achievement(course, ach_id, icon, name, description):
-    """Grant a dynamic achievement. Achievements are NOT hardcoded — the agent generates them
-    based on the specific course, topic, and student milestones."""
+    """Grant a dynamic achievement.
+
+    Achievements are NOT hardcoded — the agent generates them
+    based on the specific course, topic, and student milestones.
+    """
     data = load()
     if not data:
         print('{"error": "No profile"}')
