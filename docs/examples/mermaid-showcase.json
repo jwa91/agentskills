@@ -1,0 +1,130 @@
+{
+  "course_name": "Visual Learning Patterns",
+  "title": "Mermaid Components Showcase",
+  "subtitle": "Mind map, kanban board, and radar profile in one lesson",
+  "session": 1,
+  "estimated_minutes": 15,
+  "xp_start": 0,
+  "theme_css": "",
+  "sections": [
+    {
+      "type": "story-card",
+      "variant": "cyan",
+      "label": "Overview",
+      "content": "<p>This sample lesson demonstrates three Mermaid-native components for concept mapping, workflow planning, and competency profiling.</p>"
+    },
+    {
+      "type": "mind-map",
+      "title": "Topic Hierarchy",
+      "subtitle": "Use this to orient students before deep practice.",
+      "root": "Learning Design",
+      "branches": [
+        {
+          "text": "Pedagogy",
+          "children": [
+            "Active Recall",
+            "Spacing",
+            "Feedback Loops"
+          ]
+        },
+        {
+          "text": "Interaction",
+          "children": [
+            "Challenge-first",
+            "Simulation",
+            "Explain-back"
+          ]
+        },
+        {
+          "text": "Measurement",
+          "children": [
+            "Concept Mastery",
+            "Session Score",
+            "Review Scheduling"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "kanban-board",
+      "title": "Learning Workflow",
+      "subtitle": "Great for mission-based learning and progress state.",
+      "columns": [
+        {
+          "id": "todo",
+          "title": "To Learn",
+          "tasks": [
+            {
+              "id": "task_1",
+              "title": "Read retrieval practice guide",
+              "priority": "High"
+            },
+            {
+              "id": "task_2",
+              "title": "Outline first module"
+            }
+          ]
+        },
+        {
+          "id": "doing",
+          "title": "In Practice",
+          "tasks": [
+            {
+              "id": "task_3",
+              "title": "Build one debug challenge",
+              "assigned": "Learner"
+            }
+          ]
+        },
+        {
+          "id": "done",
+          "title": "Mastered",
+          "tasks": [
+            {
+              "id": "task_4",
+              "title": "Explain spacing strategy to peer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "radar-profile",
+      "title": "Competency Snapshot",
+      "subtitle": "Use this in student-profile style views for pre/post comparison.",
+      "chart_title": "Current vs Target",
+      "axes": [
+        { "id": "clarity", "label": "Concept Clarity" },
+        { "id": "debug", "label": "Debugging Skill" },
+        { "id": "speed", "label": "Execution Speed" },
+        { "id": "confidence", "label": "Confidence" },
+        { "id": "transfer", "label": "Transfer to Real Work" }
+      ],
+      "curves": [
+        {
+          "id": "current",
+          "label": "Current",
+          "values": [3, 2, 3, 4, 2]
+        },
+        {
+          "id": "target",
+          "label": "Target",
+          "values": [5, 4, 4, 5, 4]
+        }
+      ],
+      "max": 5,
+      "ticks": 5,
+      "show_legend": true
+    },
+    {
+      "type": "score-summary",
+      "title": "Showcase Complete",
+      "learned": [
+        "How to map hierarchical concepts with mind maps",
+        "How to track learning workflow with kanban",
+        "How to compare competency dimensions with radar charts"
+      ],
+      "next_preview": "Next: integrate these visuals into actual course sessions."
+    }
+  ]
+}

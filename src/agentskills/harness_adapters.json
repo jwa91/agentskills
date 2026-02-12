@@ -1,0 +1,17 @@
+{
+  "canonical_skills_dir": ".agents/skills",
+  "adapters": {
+    "anthropic": {
+      "relative_link_path": ".claude/skills",
+      "description": "Claude harness fallback link for projects that require .claude/skills."
+    },
+    "opencode": {
+      "relative_link_path": ".opencode/skills",
+      "description": "OpenCode fallback link to the canonical .agents/skills directory."
+    },
+    "amp": {
+      "relative_link_path": ".amp/skills",
+      "description": "Amp fallback link to the canonical .agents/skills directory."
+    }
+  }
+}

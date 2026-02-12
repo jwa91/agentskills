@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #050912;
+    --bg-raised: #0f1728;
+    --bg-inset: #0a1321;
+    --card: #121e34;
+    --card-alt: #182744;
+    --accent: #7ee3ff;
+    --accent-sub: rgba(126, 227, 255, 0.14);
+    --green: #84f0bf;
+    --green-sub: rgba(132, 240, 191, 0.12);
+    --red: #ff8e8e;
+    --red-sub: rgba(255, 142, 142, 0.12);
+    --orange: #ffc884;
+    --cyan: #89e9ff;
+    --pink: #f3a6d8;
+    --yellow: #fbe58f;
+    --text: #d7e5ff;
+    --text-mid: #9fb2d0;
+    --text-dim: #6e82a3;
+    --border: #223453;
+    --border-light: #31507b;
+    --accent-border: rgba(126, 227, 255, 0.22);
+    --green-border: rgba(132, 240, 191, 0.22);
+    --red-border: rgba(255, 142, 142, 0.22);
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-pill: 999px;
+
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+
+    --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.22);
+    --shadow-md: 0 16px 34px rgba(0, 0, 0, 0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Manrope', system-ui, sans-serif;
+    color:var(--text);
+    line-height:1.72;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 800px at 12% -10%, rgba(83, 130, 255, 0.24), transparent 50%),
+      radial-gradient(900px 600px at 88% -5%, rgba(126, 227, 255, 0.16), transparent 48%),
+      linear-gradient(180deg, #060c18 0%, #050912 45%, #040810 100%);
+  }
+  body::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.28;
+    background-image:
+      linear-gradient(rgba(147, 186, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(147, 186, 255, 0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+    z-index:0;
+  }
+
+  /* Progress */
+  .progress-track {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:4px;
+    background:rgba(34, 52, 83, 0.6);
+    z-index:120;
+  }
+  .progress-fill {
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, #7ee3ff 0%, #9ab3ff 50%, #f3a6d8 100%);
+    box-shadow:0 0 20px rgba(126, 227, 255, 0.45);
+    transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Navigation */
+  .nav {
+    position:fixed;
+    top:14px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:110;
+    width:min(980px, calc(100% - 24px));
+    background:rgba(8, 14, 26, 0.75);
+    backdrop-filter: blur(12px);
+    border:1px solid rgba(71, 102, 151, 0.38);
+    border-radius:16px;
+    padding:12px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 14px 36px rgba(0, 0, 0, 0.34);
+  }
+  .nav-title {
+    font-size:12px;
+    color:var(--text-dim);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.11em;
+  }
+  .nav-session {
+    color:var(--text-mid);
+    font-weight:700;
+  }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .nav-xp {
+    font-size:12px;
+    color:#0b2232;
+    font-weight:800;
+    padding:6px 12px;
+    border-radius:999px;
+    letter-spacing:0.04em;
+    background:linear-gradient(120deg, #7ee3ff 0%, #a8b8ff 100%);
+    border:1px solid rgba(255, 255, 255, 0.24);
+  }
+  .nav-progress-text {
+    font-size:12px;
+    color:var(--text-mid);
+    font-weight:700;
+    min-width:42px;
+    text-align:right;
+  }
+
+  /* Layout */
+  .container {
+    max-width:860px;
+    margin:0 auto;
+    padding:126px 26px 100px;
+    position:relative;
+    z-index:1;
+  }
+
+  .section {
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity 0.55s ease, transform 0.55s ease;
+    margin-bottom:56px;
+  }
+  .section.visible { opacity:1; transform:translateY(0); }
+
+  .hero {
+    background:linear-gradient(180deg, rgba(17, 30, 52, 0.9), rgba(10, 18, 33, 0.84));
+    border:1px solid rgba(62, 93, 142, 0.55);
+    border-radius:22px;
+    padding:28px 28px 24px;
+    box-shadow:0 18px 42px rgba(0, 0, 0, 0.32);
+  }
+  .hero-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    color:#a5c4f5;
+    margin-bottom:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(120, 168, 237, 0.35);
+    background:rgba(26, 45, 76, 0.6);
+  }
+  .hero-kicker::before {
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 10px rgba(126, 227, 255, 0.65);
+  }
+
+  /* Typography */
+  h1 {
+    font-family:'Fraunces', serif;
+    font-size:clamp(2rem, 3.2vw, 2.95rem);
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin-bottom:10px;
+    color:#f0f5ff;
+    line-height:1.12;
+    text-wrap:balance;
+  }
+  .subtitle {
+    font-size:1.03rem;
+    color:var(--text-mid);
+    margin-bottom:2px;
+    line-height:1.6;
+    max-width:62ch;
+  }
+  h2 {
+    font-family:'Fraunces', serif;
+    font-size:1.52rem;
+    font-weight:600;
+    margin-bottom:14px;
+    letter-spacing:-0.01em;
+    color:#eaf1ff;
+  }
+  p { margin-bottom:16px; font-size:0.98rem; }
+  strong { color:#f4f8ff; font-weight:700; }
+  code {
+    background:rgba(137, 233, 255, 0.12);
+    border:1px solid rgba(137, 233, 255, 0.24);
+    padding:2px 7px;
+    border-radius:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.85em;
+    color:var(--cyan);
+  }
+
+  .divider { height:1px; background:var(--border); margin:40px 0; }
+  .highlight { color:var(--accent); font-weight:700; }
+
+  /* Shared animations (used by generated components) */
+  @keyframes popIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  @keyframes confetti-fall {
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(500px) rotate(720deg);opacity:0}
+  }
+  @keyframes slide-up { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes counter-bump { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
+
+  .confetti-wrap { position:fixed; inset:0; pointer-events:none; z-index:200; overflow:hidden; }
+  .confetti-bit { position:absolute; top:-10px; animation:confetti-fall 2.5s ease-in forwards; }
+
+  @media (max-width:780px) {
+    .container { padding:106px 16px 72px; }
+    .nav {
+      top:8px;
+      width:calc(100% - 16px);
+      padding:10px 12px;
+      border-radius:14px;
+    }
+    .nav-title { font-size:10px; letter-spacing:0.08em; }
+    .nav-session { font-size:12px; }
+    .nav-xp { font-size:11px; padding:5px 10px; }
+    .hero { padding:22px 18px 18px; border-radius:18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section { opacity:1; transform:none; transition:none; }
+    .progress-fill, .nav-xp { transition:none; }
+    .confetti-bit { animation:none; }
+  }
+</style>
+<style>
+{{COMPONENT_CSS}}
+</style>
+{{THEME_CSS}}
+</head>
+<body>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<nav class="nav">
+  <div>
+    <span class="nav-title">{{COURSE_NAME}}</span>
+    <span class="nav-session"> / Session {{SESSION_NUM}}</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-xp" id="navXp">{{XP_DISPLAY}}</span>
+    <span class="nav-progress-text" id="navProgress">0%</span>
+  </div>
+</nav>
+<div class="container">
+  <div class="section hero" id="s0">
+    <p class="hero-kicker">{{COURSE_NAME}} · Session {{SESSION_NUM}}</p>
+    <h1>{{TITLE}}</h1>
+    <p class="subtitle">{{SUBTITLE}} · {{ESTIMATED_MINUTES}} min</p>
+  </div>
+  {{SECTIONS}}
+</div>
+<script>
+const LES = {score:0, maxScore:0, answered:{}, xp:{{XP_START}}, confettiLaunched:false };
+function updateVisibility(){
+  let mx=0;
+  document.querySelectorAll('.section').forEach((s,i)=>{
+    if(s.getBoundingClientRect().top<window.innerHeight*0.85){s.classList.add('visible');mx=i+1;}
+  });
+  const pct=Math.round((mx/document.querySelectorAll('.section').length)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('navProgress').textContent=pct+'%';
+}
+window.addEventListener('scroll',updateVisibility);
+setTimeout(updateVisibility,100);
+function addXp(n){
+  LES.xp+=n;
+  const el=document.getElementById('navXp');
+  el.textContent='⚡ '+LES.xp+' XP';
+  el.style.animation='counter-bump 0.25s ease';
+  setTimeout(()=>el.style.animation='',250);
+}
+function launchConfetti(){
+  const c=document.createElement('div');c.className='confetti-wrap';document.body.appendChild(c);
+  const colors=['#8b7cf7','#5ee89d','#48d4e8','#f0a050','#e87cb0','#e8d44c'];
+  for(let i=0;i<50;i++){
+    const p=document.createElement('div');p.className='confetti-bit';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=Math.random()*0.7+'s';
+    p.style.animationDuration=(2+Math.random()*1.5)+'s';
+    const w=5+Math.random()*7, h=w*(0.4+Math.random()*0.6);
+    p.style.width=w+'px';p.style.height=h+'px';
+    p.style.borderRadius=Math.random()>0.5?'50%':'1px';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.remove(),4000);
+}
+{{COMPONENT_SCRIPTS}}
+</script>
+{{MODULE_SCRIPTS}}
+</body>
+</html>
