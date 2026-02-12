@@ -82,7 +82,31 @@ Based on research, plan the full course:
 - Identify sessions where real-world missions, external tools, or deeper exploration fit naturally
 - Max 6 new vocabulary terms per session, each with a bridging analogy
 
-Share the curriculum with the student. Let them react, reprioritize, skip things they know. This is collaborative.
+Save the curriculum and show it to the student as an interactive dashboard:
+
+1. Write a curriculum JSON file (array of session objects):
+   ```json
+   [
+     {
+       "session_number": 1,
+       "title": "How Bash Actually Works",
+       "description": "The mental model that changes everything",
+       "objectives": ["Explain what a shell does", "Break down command syntax"],
+       "concepts": ["shell-mental-model", "commands-and-arguments"],
+       "estimated_minutes": 20
+     }
+   ]
+   ```
+2. Save it to the course progress:
+   ```bash
+   uv run .agents/skills/interactive-learner/scripts/progress.py set-curriculum <course> <curriculum.json>
+   ```
+3. Build and open the dashboard so the student can see the full plan:
+   ```bash
+   uv run .agents/skills/interactive-learner/scripts/build-dashboard.py --open
+   ```
+
+Let the student react, reprioritize, skip things they know. This is collaborative.
 
 See [course-design-guide.md](references/course-design-guide.md) for topic-type → component mapping and session patterns.
 

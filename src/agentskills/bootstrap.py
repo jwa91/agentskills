@@ -142,7 +142,9 @@ def parse_args() -> argparse.Namespace:
         "--mode",
         choices=["copy", "symlink"],
         default="copy",
-        help="Install mode.",
+        help="Install mode. 'copy' is safest — files live inside the project. "
+        "'symlink' saves disk space but creates links outside the project tree, "
+        "which may cause permission prompts in Claude Code.",
     )
     parser.add_argument(
         "--force",
@@ -212,6 +214,14 @@ def main() -> int:
         project_root.mkdir(parents=True, exist_ok=True)
         destination_root = project_root / PROJECT_SKILLS_DIR
         destination_root.mkdir(parents=True, exist_ok=True)
+
+        if args.mode == "symlink":
+            print(
+                "warning: symlink mode creates links that resolve outside the "
+                "project directory. This may cause permission prompts in Claude "
+                "Code for every file read. Use --mode copy to avoid this.",
+                file=sys.stderr,
+            )
 
         installed: list[Path] = []
         for skill_name in selected:

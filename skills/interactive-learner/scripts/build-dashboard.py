@@ -156,6 +156,75 @@ def build_course_card(course_id, course_data, delay_idx):
 </div>'''
 
 
+def build_curriculum_section(course_id, course_data, delay_idx):
+    """Build an expandable curriculum section showing all planned sessions."""
+    curriculum = course_data.get("curriculum")
+    if not curriculum:
+        return ""
+
+    current_session = course_data.get("current_session", 0)
+    scores = course_data.get("scores", [])
+    max_scores = course_data.get("max_scores", [])
+    name = course_id.replace("-", " ").replace("_", " ").title()
+
+    sessions_html = ""
+    for sess in curriculum:
+        num = sess.get("session_number", 0)
+        title = html.escape(sess.get("title", f"Session {num}"))
+        desc = html.escape(sess.get("description", ""))
+        objectives = sess.get("objectives", [])
+        concepts = sess.get("concepts", [])
+        est = sess.get("estimated_minutes", 0)
+
+        # Status: completed / current / upcoming
+        if num <= current_session and num <= len(scores):
+            status = "completed"
+            icon = '<span class="cur-status-icon completed">&#10003;</span>'
+            score_idx = num - 1
+            if 0 <= score_idx < len(scores):
+                s, m = scores[score_idx], max_scores[score_idx] if score_idx < len(max_scores) else 0
+                score_html = f'<span class="cur-score">{s}/{m}</span>'
+            else:
+                score_html = ""
+        elif num == current_session + 1:
+            status = "current"
+            icon = '<span class="cur-status-icon current">&#9654;</span>'
+            score_html = ""
+        else:
+            status = "upcoming"
+            icon = ""
+            score_html = ""
+
+        obj_tags = "".join(
+            f'<span class="cur-tag">{html.escape(o)}</span>' for o in objectives
+        )
+        concept_tags = "".join(
+            f'<span class="cur-concept">{html.escape(c)}</span>' for c in concepts
+        )
+
+        est_html = f'<span class="cur-est">{est} min</span>' if est else ""
+
+        sessions_html += f'''<div class="cur-session {status}" onclick="this.classList.toggle('expanded')">
+      <div class="cur-session-header">
+        {icon}
+        <span class="cur-session-num">Session {num}</span>
+        <span class="cur-session-title">{title}</span>
+        {score_html}
+        {est_html}
+      </div>
+      <div class="cur-details">
+        <p class="cur-desc">{desc}</p>
+        <div class="cur-tags">{obj_tags}</div>
+        <div class="cur-concepts">{concept_tags}</div>
+      </div>
+    </div>\n'''
+
+    return f'''<div class="curriculum-card animate-in delay-{delay_idx}">
+  <h2>Curriculum &mdash; {html.escape(name)}</h2>
+  <div class="cur-sessions">{sessions_html}</div>
+</div>'''
+
+
 def build_achievements(earned_items):
     """Build achievement badges grid.
 
@@ -278,8 +347,15 @@ def build_dashboard(progress_path, output_path=None):
     stat_row = build_stat_row(data)
 
     courses_html = ""
-    for i, (cid, cdata) in enumerate(data.get("courses", {}).items()):
-        courses_html += build_course_card(cid, cdata, i + 2)
+    curriculum_html = ""
+    delay = 2
+    for cid, cdata in data.get("courses", {}).items():
+        courses_html += build_course_card(cid, cdata, delay)
+        delay += 1
+        cur = build_curriculum_section(cid, cdata, delay)
+        if cur:
+            curriculum_html += cur
+            delay += 1
 
     achievements_html = build_achievements(data.get("achievements", []))
 
@@ -288,6 +364,7 @@ def build_dashboard(progress_path, output_path=None):
     result = result.replace("{{SUBTITLE}}", subtitle)
     result = result.replace("{{STAT_ROW}}", stat_row)
     result = result.replace("{{COURSES}}", courses_html)
+    result = result.replace("{{CURRICULUM}}", curriculum_html)
     result = result.replace("{{ACHIEVEMENTS}}", achievements_html)
 
     if not output_path:

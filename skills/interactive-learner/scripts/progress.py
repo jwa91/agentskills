@@ -13,6 +13,7 @@ Usage:
   uv run .agents/skills/interactive-learner/scripts/progress.py achieve <course> <id> <icon> <name> <description>  # Grant dynamic achievement
   uv run .agents/skills/interactive-learner/scripts/progress.py mission <course> <description> # Log a pending mission
   uv run .agents/skills/interactive-learner/scripts/progress.py mission-complete <course> <idx> # Mark a mission complete
+  uv run .agents/skills/interactive-learner/scripts/progress.py set-curriculum <course> <curriculum.json>  # Save curriculum
 """
 
 import json
@@ -347,6 +348,36 @@ def complete_mission(course, idx):
     print(json.dumps({"completed": True, "mission": mission}))
 
 
+def set_curriculum(course, curriculum_json_path):
+    """Save a curriculum to the course data.
+
+    Accepts a JSON file containing either a bare list of session objects
+    or an object with a ``sessions`` key.
+    """
+    data = load()
+    if not data:
+        print('{"error": "No profile"}')
+        return
+
+    c = data["courses"].get(course)
+    if not c:
+        print(f'{{"error": "Course {course} not found"}}')
+        return
+
+    raw = json.loads(Path(curriculum_json_path).read_text())
+    if isinstance(raw, list):
+        sessions = raw
+    elif isinstance(raw, dict) and "sessions" in raw:
+        sessions = raw["sessions"]
+    else:
+        print('{"error": "Expected a JSON array or an object with a \\"sessions\\" key"}')
+        return
+
+    c["curriculum"] = sessions
+    save(data)
+    print(json.dumps({"saved": True, "course": course, "sessions": len(sessions)}))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Student progress tracker")
     sub = parser.add_subparsers(dest="cmd")
@@ -384,6 +415,10 @@ def main():
     p_mission_done.add_argument("course")
     p_mission_done.add_argument("idx", type=int)
 
+    p_curriculum = sub.add_parser("set-curriculum")
+    p_curriculum.add_argument("course")
+    p_curriculum.add_argument("curriculum_json", help="Path to curriculum JSON file")
+
     sub.add_parser("streak")
     sub.add_parser("xp")
 
@@ -408,6 +443,8 @@ def main():
         add_mission(args.course, args.description)
     elif args.cmd == "mission-complete":
         complete_mission(args.course, args.idx)
+    elif args.cmd == "set-curriculum":
+        set_curriculum(args.course, args.curriculum_json)
     elif args.cmd == "streak":
         data = load()
         if data:

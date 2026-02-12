@@ -7,6 +7,7 @@ import pytest
 from agentskills.bootstrap import (
     discover_available_skills,
     install_skill,
+    main,
     parse_skill_list,
     repo_cache_name,
 )
@@ -134,3 +135,49 @@ class TestInstallSkill:
                 "copy",
                 force=False,
             )
+
+
+class TestSymlinkWarning:
+    def test_symlink_mode_prints_warning(self, tmp_skill: Path, tmp_path: Path, capsys, monkeypatch):
+        dest = tmp_path / "project"
+        dest.mkdir()
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentskills",
+                "--project",
+                str(dest),
+                "--skill",
+                "test-skill",
+                "--mode",
+                "symlink",
+                "--repo-path",
+                str(tmp_skill),
+            ],
+        )
+        result = main()
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "symlink mode creates links that resolve outside" in captured.err
+
+    def test_copy_mode_no_warning(self, tmp_skill: Path, tmp_path: Path, capsys, monkeypatch):
+        dest = tmp_path / "project"
+        dest.mkdir()
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentskills",
+                "--project",
+                str(dest),
+                "--skill",
+                "test-skill",
+                "--mode",
+                "copy",
+                "--repo-path",
+                str(tmp_skill),
+            ],
+        )
+        result = main()
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "symlink" not in captured.err

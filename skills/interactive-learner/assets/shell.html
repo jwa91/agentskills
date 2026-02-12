@@ -155,12 +155,16 @@
   }
 
   .section {
+    opacity:1;
+    transform:translateY(0);
+    margin-bottom:56px;
+  }
+  body.js-ready .section {
     opacity:0;
     transform:translateY(16px);
     transition:opacity 0.55s ease, transform 0.55s ease;
-    margin-bottom:56px;
   }
-  .section.visible { opacity:1; transform:translateY(0); }
+  body.js-ready .section.visible { opacity:1; transform:translateY(0); }
 
   .hero {
     background:linear-gradient(180deg, rgba(17, 30, 52, 0.9), rgba(10, 18, 33, 0.84));
@@ -262,7 +266,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .section { opacity:1; transform:none; transition:none; }
+    body.js-ready .section { opacity:1; transform:none; transition:none; }
     .progress-fill, .nav-xp { transition:none; }
     .confetti-bit { animation:none; }
   }
@@ -303,8 +307,6 @@ function updateVisibility(){
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('navProgress').textContent=pct+'%';
 }
-window.addEventListener('scroll',updateVisibility);
-setTimeout(updateVisibility,100);
 function addXp(n){
   LES.xp+=n;
   const el=document.getElementById('navXp');
@@ -328,7 +330,14 @@ function launchConfetti(){
   }
   setTimeout(()=>c.remove(),4000);
 }
+document.body.classList.add('js-ready');
+window.addEventListener('scroll',updateVisibility);
+setTimeout(updateVisibility,100);
+</script>
+<script>
+try{
 {{COMPONENT_SCRIPTS}}
+}catch(e){console.error('Component error:',e);}
 </script>
 {{MODULE_SCRIPTS}}
 </body>

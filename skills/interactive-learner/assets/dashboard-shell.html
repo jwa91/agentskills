@@ -273,6 +273,116 @@
   .badge-name { font-size:11px; font-weight:700; color:var(--text-mid); }
   .badge-desc { font-size:10px; color:var(--text-dim); }
 
+  /* Curriculum */
+  .curriculum-card {
+    grid-column:1/-1;
+    background:linear-gradient(180deg, rgba(19, 31, 54, 0.95), rgba(12, 21, 37, 0.96));
+    border:1px solid rgba(66, 96, 145, 0.52);
+    border-radius:18px;
+    padding:26px 26px 22px;
+    box-shadow:0 14px 32px rgba(0, 0, 0, 0.28);
+  }
+  .curriculum-card h2 {
+    font-family:'Fraunces',serif;
+    font-size:1.38rem;
+    font-weight:600;
+    margin-bottom:16px;
+    letter-spacing:-0.01em;
+    color:#edf3ff;
+  }
+  .cur-sessions { display:flex; flex-direction:column; gap:6px; }
+  .cur-session {
+    border-radius:10px;
+    padding:0;
+    cursor:pointer;
+    transition:border-color .2s ease, background .2s ease;
+    border-left:3px solid transparent;
+    overflow:hidden;
+  }
+  .cur-session.completed { border-left-color:var(--green); }
+  .cur-session.current { border-left-color:var(--accent); background:rgba(126, 227, 255, 0.05); }
+  .cur-session.upcoming { opacity:0.55; }
+  .cur-session:hover { background:rgba(126, 227, 255, 0.06); }
+  .cur-session-header {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .cur-status-icon {
+    font-size:12px;
+    width:20px;
+    height:20px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .cur-status-icon.completed { background:var(--green-sub); color:var(--green); }
+  .cur-status-icon.current { background:var(--accent-sub); color:var(--accent); }
+  .cur-session-num {
+    font-size:11px;
+    color:var(--text-dim);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    flex-shrink:0;
+  }
+  .cur-session-title { flex:1; }
+  .cur-score {
+    font-size:12px;
+    color:var(--green);
+    font-weight:700;
+    background:var(--green-sub);
+    padding:2px 8px;
+    border-radius:999px;
+    flex-shrink:0;
+  }
+  .cur-est {
+    font-size:11px;
+    color:var(--text-dim);
+    flex-shrink:0;
+  }
+  .cur-details {
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease, padding .3s ease;
+    padding:0 14px;
+  }
+  .cur-session.expanded .cur-details {
+    max-height:300px;
+    padding:0 14px 14px;
+  }
+  .cur-desc {
+    font-size:13px;
+    color:var(--text-mid);
+    margin-bottom:10px;
+    line-height:1.55;
+  }
+  .cur-tags, .cur-concepts { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+  .cur-tag {
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:999px;
+    background:rgba(126, 227, 255, 0.1);
+    border:1px solid rgba(126, 227, 255, 0.22);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .cur-concept {
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:999px;
+    background:rgba(132, 240, 191, 0.08);
+    border:1px solid rgba(132, 240, 191, 0.18);
+    color:var(--green);
+    font-weight:500;
+  }
+
   /* Responsive */
   @media(max-width:760px) {
     .stat-row { grid-template-columns:1fr; }
@@ -302,6 +412,7 @@
 <div class="dash-grid">
   {{STAT_ROW}}
   {{COURSES}}
+  {{CURRICULUM}}
   {{ACHIEVEMENTS}}
 </div>
 </body>
