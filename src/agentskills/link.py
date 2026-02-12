@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create optional harness links to a project's canonical .agents/skills directory."""
+"""Create optional harness links to a project's .agents/skills directory."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent / "harness_adapters.json"
 
 
 def parse_harness_list(raw_values: list[str]) -> list[str]:
+    """Parse comma-separated and repeated harness names into a unique list."""
     selected: list[str] = []
     for raw in raw_values:
         for part in raw.split(","):
@@ -24,6 +25,7 @@ def parse_harness_list(raw_values: list[str]) -> list[str]:
 
 
 def remove_path(path: Path) -> None:
+    """Remove a file, symlink, or directory tree."""
     if path.is_symlink() or path.is_file():
         path.unlink()
     elif path.exists():
@@ -31,7 +33,10 @@ def remove_path(path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Link non-native harness skill folders to .agents/skills.")
+    """Parse CLI arguments for the link command."""
+    parser = argparse.ArgumentParser(
+        description=("Link non-native harness skill folders to .agents/skills."),
+    )
     parser.add_argument(
         "--project",
         required=True,
@@ -41,7 +46,7 @@ def parse_args() -> argparse.Namespace:
         "--harness",
         action="append",
         default=[],
-        help="Harness name(s) to link. Repeat or comma-separate. Default: all.",
+        help="Harness name(s). Repeat or comma-separate. Default: all.",
     )
     parser.add_argument(
         "--config",
@@ -61,7 +66,44 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _link_harness(  # noqa: PLR0913
+    name: str,
+    link_path: Path,
+    relative_target: Path,
+    force: bool,
+    dry_run: bool,
+) -> None:
+    """Create or validate a single harness symlink."""
+    if link_path.is_symlink():
+        existing = Path(os.readlink(link_path))
+        if existing == relative_target:
+            print(f"skip: {name} already linked ({link_path} -> {relative_target})")
+            return
+        if not force:
+            raise RuntimeError(
+                f"Link already exists for {name} with"
+                f" different target: {link_path} ->"
+                f" {existing} (use --force to replace)"
+            )
+        if not dry_run:
+            link_path.unlink()
+    elif link_path.exists():
+        if not force:
+            raise RuntimeError(
+                f"Path already exists for {name}: {link_path} (use --force to replace)"
+            )
+        if not dry_run:
+            remove_path(link_path)
+
+    if dry_run:
+        print(f"plan: link {name} ({link_path} -> {relative_target})")
+    else:
+        link_path.symlink_to(relative_target, target_is_directory=True)
+        print(f"linked: {name} ({link_path} -> {relative_target})")
+
+
 def main() -> int:
+    """Create harness symlinks for a project."""
     try:
         args = parse_args()
         project_root = Path(args.project).expanduser().resolve()
@@ -81,8 +123,9 @@ def main() -> int:
         canonical_dir = project_root / canonical_rel
         if not canonical_dir.exists():
             raise RuntimeError(
-                f"Canonical skills directory is missing: {canonical_dir}. "
-                "Install skills first via `agentskills bootstrap`."
+                f"Canonical skills directory is missing:"
+                f" {canonical_dir}. Install skills first"
+                " via `agentskills bootstrap`."
             )
 
         selected = parse_harness_list(args.harness)
@@ -104,30 +147,13 @@ def main() -> int:
             link_path = project_root / link_rel
             link_path.parent.mkdir(parents=True, exist_ok=True)
             relative_target = Path(os.path.relpath(canonical_dir, link_path.parent))
-
-            if link_path.is_symlink():
-                existing_target = Path(os.readlink(link_path))
-                if existing_target == relative_target:
-                    print(f"skip: {name} already linked ({link_path} -> {relative_target})")
-                    continue
-                if not args.force:
-                    raise RuntimeError(
-                        f"Link already exists for {name} with different target: "
-                        f"{link_path} -> {existing_target} (use --force to replace)"
-                    )
-                if not args.dry_run:
-                    link_path.unlink()
-            elif link_path.exists():
-                if not args.force:
-                    raise RuntimeError(f"Path already exists for {name}: {link_path} (use --force to replace)")
-                if not args.dry_run:
-                    remove_path(link_path)
-
-            if args.dry_run:
-                print(f"plan: link {name} ({link_path} -> {relative_target})")
-            else:
-                link_path.symlink_to(relative_target, target_is_directory=True)
-                print(f"linked: {name} ({link_path} -> {relative_target})")
+            _link_harness(
+                name,
+                link_path,
+                relative_target,
+                args.force,
+                args.dry_run,
+            )
 
         print("done: optional harness links are configured.")
         return 0

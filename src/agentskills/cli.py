@@ -14,6 +14,7 @@ COMMANDS = {
 
 
 def main() -> int:
+    """Dispatch to the requested subcommand."""
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
         print("usage: agentskills <command> [args]\n")
         print("commands:")

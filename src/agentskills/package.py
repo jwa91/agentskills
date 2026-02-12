@@ -13,6 +13,7 @@ SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?
 
 
 def parse_frontmatter(skill_md: Path) -> tuple[str, str]:
+    """Extract name and version from SKILL.md YAML frontmatter."""
     text = skill_md.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise RuntimeError(f"Missing YAML frontmatter in {skill_md}")
@@ -47,13 +48,16 @@ def parse_frontmatter(skill_md: Path) -> tuple[str, str]:
     if not name:
         raise RuntimeError(f"Frontmatter is missing 'name' in {skill_md}")
     if not version:
-        raise RuntimeError(f"Frontmatter is missing 'metadata.version' (or 'version') in {skill_md}")
+        raise RuntimeError(
+            f"Frontmatter is missing 'metadata.version' (or 'version') in {skill_md}"
+        )
     if not SEMVER_RE.match(version):
         raise RuntimeError(f"Version is not semver ({version}) in {skill_md}")
     return name, version
 
 
 def iter_skill_files(skill_dir: Path) -> list[Path]:
+    """List all distributable files in a skill directory."""
     files: list[Path] = []
     for path in sorted(skill_dir.rglob("*")):
         if not path.is_file():
@@ -72,20 +76,22 @@ def package_skill(
     output_dir: str = "dist",
     overwrite: bool = False,
 ) -> tuple[Path, str, str]:
-    """Package a skill and return (archive_path, frontmatter_name, version)."""
+    """Package a skill and return (archive_path, name, version)."""
     skill_dir = repo_root / "skills" / skill_name
     skill_md = skill_dir / "SKILL.md"
     if not skill_md.exists():
         raise RuntimeError(f"Skill not found: {skill_md}")
 
     frontmatter_name, version = parse_frontmatter(skill_md)
-    package_name = f"{frontmatter_name}-v{version}.skill"
+    pkg_name = f"{frontmatter_name}-v{version}.skill"
     out = (repo_root / output_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    archive_path = out / package_name
+    archive_path = out / pkg_name
 
     if archive_path.exists() and not overwrite:
-        raise RuntimeError(f"Package already exists: {archive_path} (use --overwrite to replace)")
+        raise RuntimeError(
+            f"Package already exists: {archive_path} (use --overwrite to replace)"
+        )
 
     files = iter_skill_files(skill_dir)
     with ZipFile(archive_path, mode="w", compression=ZIP_DEFLATED) as zf:
@@ -99,7 +105,10 @@ def package_skill(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Package a skill into a .skill archive.")
+    """Parse CLI arguments for the package command."""
+    parser = argparse.ArgumentParser(
+        description="Package a skill into a .skill archive.",
+    )
     parser.add_argument("skill", help="Skill name under skills/<skill>.")
     parser.add_argument(
         "--repo-root",
@@ -120,6 +129,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Package a skill into a distributable archive."""
     try:
         args = parse_args()
         repo_root = Path(args.repo_root).expanduser().resolve()

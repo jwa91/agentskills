@@ -4,13 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from agentskills.package import iter_skill_files, package_skill, parse_frontmatter
+from agentskills.package import (
+    iter_skill_files,
+    package_skill,
+    parse_frontmatter,
+)
 
 
 class TestParseFrontmatter:
     def test_valid(self, tmp_path: Path):
         md = tmp_path / "SKILL.md"
-        md.write_text("---\nname: my-skill\nmetadata:\n  version: 2.1.0\n---\n# My Skill\n")
+        md.write_text(
+            "---\nname: my-skill\nmetadata:\n  version: 2.1.0\n---\n# My Skill\n"
+        )
         name, version = parse_frontmatter(md)
         assert name == "my-skill"
         assert version == "2.1.0"

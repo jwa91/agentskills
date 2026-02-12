@@ -12,6 +12,7 @@ from agentskills.package import package_skill
 
 
 def run_command(cmd: list[str], cwd: Path) -> None:
+    """Run a shell command, raising on non-zero exit."""
     result = subprocess.run(cmd, cwd=str(cwd), check=False)
     if result.returncode != 0:
         joined = " ".join(cmd)
@@ -19,7 +20,10 @@ def run_command(cmd: list[str], cwd: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate and package a skill.")
+    """Parse CLI arguments for the release command."""
+    parser = argparse.ArgumentParser(
+        description="Validate and package a skill.",
+    )
     parser.add_argument("skill", help="Skill name under skills/<skill>.")
     parser.add_argument(
         "--repo-root",
@@ -45,6 +49,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Validate a skill and package it."""
     try:
         args = parse_args()
         repo_root = Path(args.repo_root).expanduser().resolve()

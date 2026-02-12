@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from agentskills.bootstrap import (
     discover_available_skills,
     install_skill,
     parse_skill_list,
     repo_cache_name,
 )
+
+URL = "https://github.com/jwa91/agentskills"
 
 
 class TestParseSkillList:
@@ -18,10 +22,18 @@ class TestParseSkillList:
         assert parse_skill_list(["foo"]) == ["foo"]
 
     def test_comma_separated(self):
-        assert parse_skill_list(["foo,bar,baz"]) == ["foo", "bar", "baz"]
+        assert parse_skill_list(["foo,bar,baz"]) == [
+            "foo",
+            "bar",
+            "baz",
+        ]
 
     def test_mixed(self):
-        assert parse_skill_list(["foo,bar", "baz"]) == ["foo", "bar", "baz"]
+        assert parse_skill_list(["foo,bar", "baz"]) == [
+            "foo",
+            "bar",
+            "baz",
+        ]
 
     def test_deduplicates(self):
         assert parse_skill_list(["foo,foo", "foo"]) == ["foo"]
@@ -32,13 +44,13 @@ class TestParseSkillList:
 
 class TestRepoCacheName:
     def test_simple_url(self):
-        assert repo_cache_name("https://github.com/jwa91/agentskills.git") == "agentskills"
+        assert repo_cache_name(f"{URL}.git") == "agentskills"
 
     def test_no_git_suffix(self):
-        assert repo_cache_name("https://github.com/jwa91/agentskills") == "agentskills"
+        assert repo_cache_name(URL) == "agentskills"
 
     def test_trailing_slash(self):
-        assert repo_cache_name("https://github.com/jwa91/agentskills/") == "agentskills"
+        assert repo_cache_name(f"{URL}/") == "agentskills"
 
     def test_special_chars(self):
         result = repo_cache_name("https://example.com/my repo!.git")
@@ -63,28 +75,62 @@ class TestInstallSkill:
     def test_copy_mode(self, tmp_skill: Path, tmp_path: Path):
         dest = tmp_path / "dest"
         dest.mkdir()
-        result = install_skill("test-skill", tmp_skill / "skills", dest, "copy", force=False)
+        result = install_skill(
+            "test-skill",
+            tmp_skill / "skills",
+            dest,
+            "copy",
+            force=False,
+        )
         assert result.exists()
         assert (result / "SKILL.md").exists()
 
     def test_symlink_mode(self, tmp_skill: Path, tmp_path: Path):
         dest = tmp_path / "dest"
         dest.mkdir()
-        result = install_skill("test-skill", tmp_skill / "skills", dest, "symlink", force=False)
+        result = install_skill(
+            "test-skill",
+            tmp_skill / "skills",
+            dest,
+            "symlink",
+            force=False,
+        )
         assert result.is_symlink()
 
     def test_force_replaces(self, tmp_skill: Path, tmp_path: Path):
         dest = tmp_path / "dest"
         dest.mkdir()
-        install_skill("test-skill", tmp_skill / "skills", dest, "copy", force=False)
-        result = install_skill("test-skill", tmp_skill / "skills", dest, "copy", force=True)
+        install_skill(
+            "test-skill",
+            tmp_skill / "skills",
+            dest,
+            "copy",
+            force=False,
+        )
+        result = install_skill(
+            "test-skill",
+            tmp_skill / "skills",
+            dest,
+            "copy",
+            force=True,
+        )
         assert result.exists()
 
     def test_no_force_raises(self, tmp_skill: Path, tmp_path: Path):
         dest = tmp_path / "dest"
         dest.mkdir()
-        install_skill("test-skill", tmp_skill / "skills", dest, "copy", force=False)
-        import pytest
-
+        install_skill(
+            "test-skill",
+            tmp_skill / "skills",
+            dest,
+            "copy",
+            force=False,
+        )
         with pytest.raises(RuntimeError, match="already exists"):
-            install_skill("test-skill", tmp_skill / "skills", dest, "copy", force=False)
+            install_skill(
+                "test-skill",
+                tmp_skill / "skills",
+                dest,
+                "copy",
+                force=False,
+            )
