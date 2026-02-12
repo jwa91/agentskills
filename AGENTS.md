@@ -32,3 +32,4 @@ Adding a new skill
 Currently included skills
 
 - `interactive-learner` — AI tutoring skill that creates interactive HTML courses. See `skills/interactive-learner/` for skill-specific architecture, scripts, and references.
+- `mac-cleanup` — Interactive macOS system cleanup that discovers installed tools and frees disk space. See `skills/mac-cleanup/`.

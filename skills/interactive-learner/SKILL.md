@@ -45,8 +45,6 @@ uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <nam
 
 **This is critical. Do not skip or rush this step.** Before designing any curriculum, become an expert on the subject.
 
-**Important: Do your research directly.** Use web search, read documentation, and fetch pages yourself. Do NOT delegate research to a background agent — it gets stuck on permission prompts and wastes time.
-
 **Deep research protocol:**
 
 1. **Search for authoritative, recent sources** — prioritize official documentation, peer-reviewed content, respected practitioners, and recent (2024-2026) material
@@ -206,13 +204,21 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
     },
     { "type": "vocab-cards", "terms": [{ "term": "Pod", "icon": "🫛", "definition": "...", "analogy": "..." }] },
     { "type": "video-embed", "youtube_id": "dQw4w9WgXcQ", "title": "Watch This", "intro": "Quick overview." },
-    { "type": "side-by-side", "title": "A vs B",
-      "left": {"header": "Option A", "icon": "🔵", "items": ["Advantage 1", "Advantage 2"]},
-      "right": {"header": "Option B", "icon": "🟢", "items": ["Advantage 1", "Advantage 2"]}},
-    { "type": "matching", "title": "Match Terms", "pairs": [
-      {"term": "Concept A", "definition": "Explanation A"},
-      {"term": "Concept B", "definition": "Explanation B"}
-    ], "right_order": [1, 0]},
+    {
+      "type": "side-by-side",
+      "title": "A vs B",
+      "left": { "header": "Option A", "icon": "🔵", "items": ["Advantage 1", "Advantage 2"] },
+      "right": { "header": "Option B", "icon": "🟢", "items": ["Advantage 1", "Advantage 2"] }
+    },
+    {
+      "type": "matching",
+      "title": "Match Terms",
+      "pairs": [
+        { "term": "Concept A", "definition": "Explanation A" },
+        { "term": "Concept B", "definition": "Explanation B" }
+      ],
+      "right_order": [1, 0]
+    },
     {
       "type": "explain-back",
       "prompt": "In one sentence, explain why you can't just use Docker alone for 50 containers.",
