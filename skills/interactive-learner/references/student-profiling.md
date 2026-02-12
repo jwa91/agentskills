@@ -2,32 +2,36 @@
 
 ## First-Time Setup
 
-When starting a new course with a new student, gather this information **conversationally** (not as a form). This is a chat, not an intake survey.
+Keep profiling fast and frictionless. The student came to learn, not to answer an intake survey. Get the minimum info needed to personalize, then start teaching. Refine as you go.
 
-### Essential (must ask)
+### Interaction rules
 
-1. **Background**: What do they already know about this topic? What adjacent knowledge do they have?
-2. **Goal**: Why are they learning this? (job, promotion, hobby, curiosity, deadline, switching careers)
-3. **Constraints**: Time per session? (suggest 15-25 min). Any hardware or access limits?
+- **Prefer multiple-choice questions.** Use the agent's question tool with concrete options. Multiple-choice is faster to answer and gives structured signal.
+- **Max 1 open-ended question at a time.** Never send multiple open questions in one message.
+- **Max 3-4 profiling questions total** before starting the first session.
+- **Start teaching quickly.** You'll learn more from how they perform in session 1 than from a pre-interview.
 
-### Important (ask naturally)
+### What to ask (in priority order)
 
-4. **Analogies from their world**: What's their day job? Hobbies? Interests? These become your primary teaching tools. A musician understands composition/harmony. A cook understands recipes/timing. A parent understands scheduling/resource management.
-5. **Existing tools**: What do they already use? (Docker, Git, VSCode, Figma, Excel, specific languages)
-6. **Preferred depth**: Quick practical overview, or deep conceptual understanding?
+1. **Experience level** (multiple-choice): none / some exposure / use it occasionally / use it daily
+2. **Goal** (multiple-choice + optional free text): career / hobby / curiosity / specific task — if they pick "specific task", one follow-up to clarify
+3. **Time per session** (multiple-choice): ~10 min / ~20 min / ~30+ min
+4. **Background** (open, only if not obvious from context): "What's your day job or main interest?" — this gives you analogy material
 
-### Infer from conversation (don't ask directly)
+### Infer from context and performance (don't ask)
 
-- **Pace**: Fast learner or wants more repetition? (gauge from quiz scores and conversation)
-- **Jargon tolerance**: Technical vs plain language? (default to plain, adjust up)
-- **Visual vs text**: Do they ask for diagrams, or are they happy with descriptions?
-- **Confidence level**: Are they bold and experimental, or cautious and want confirmation?
+- **Pace**: Gauge from quiz scores and conversation speed
+- **Jargon tolerance**: Default to plain language, adjust up if they use technical terms
+- **Visual vs text**: Observe whether they ask for diagrams or examples
+- **Confidence level**: Bold/experimental vs cautious — adjust scaffolding accordingly
+- **Analogies from their world**: Derive from their background answer and topic choice
+- **Existing tools**: Infer from topic choice and experience level, ask only if critical for examples
 
-### Optional (ask if relevant to the topic)
+### Optional (ask during session, not upfront)
 
-- **Language preference**: For code examples — Python, JavaScript, Go, etc.
-- **Real-world access**: Can they install tools? Run terminals? Access playgrounds?
-- **Social context**: Are they learning alone, with a team, for a certification?
+- **Language preference**: For code examples — ask when you first need to write code, not before
+- **Real-world access**: Ask when you plan a hands-on mission, not during profiling
+- **Preferred depth**: Infer from goal and experience level
 
 ## Returning Student
 

@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-"""
-Search YouTube for educational videos relevant to a lesson topic.
+# /// script
+# dependencies = ["certifi"]
+# ///
+"""Search YouTube for educational videos relevant to a lesson topic.
 
-Usage: uv run .agents/skills/interactive-learner/scripts/find-videos.py "kubernetes pods explained" [--max 5]
+Usage:
+    uv run .agents/skills/interactive-learner/scripts/find-videos.py "kubernetes pods explained" [--max 5]
 
 Returns JSON array of video results that Claude can evaluate for inclusion.
 This script uses YouTube's search page (no API key needed).
 """
 
-import sys
-import json
 import argparse
-import urllib.request
-import urllib.parse
+import json
 import re
+import ssl
+import urllib.parse
+import urllib.request
+
+import certifi
 
 
 def search_youtube(query, max_results=5):
@@ -21,13 +26,18 @@ def search_youtube(query, max_results=5):
     encoded = urllib.parse.quote(query)
     url = f"https://www.youtube.com/results?search_query={encoded}"
 
-    req = urllib.request.Request(url, headers={
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-        "Accept-Language": "en-US,en;q=0.9"
-    })
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+    )
+
+    ctx = ssl.create_default_context(cafile=certifi.where())
 
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
             html = resp.read().decode("utf-8")
     except Exception as e:
         return {"error": f"Failed to fetch: {e}"}
@@ -44,7 +54,9 @@ def search_youtube(query, max_results=5):
 
     results = []
     try:
-        contents = data["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
+        contents = data["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"][
+            "sectionListRenderer"
+        ]["contents"][0]["itemSectionRenderer"]["contents"]
     except (KeyError, IndexError):
         return {"error": "Could not find video results in page"}
 
@@ -91,17 +103,19 @@ def search_youtube(query, max_results=5):
         except (KeyError, IndexError):
             pass
 
-        results.append({
-            "video_id": video_id,
-            "title": title,
-            "channel": channel,
-            "duration": duration,
-            "views": views,
-            "published": published,
-            "description": description,
-            "url": f"https://www.youtube.com/watch?v={video_id}",
-            "embed_url": f"https://www.youtube.com/embed/{video_id}"
-        })
+        results.append(
+            {
+                "video_id": video_id,
+                "title": title,
+                "channel": channel,
+                "duration": duration,
+                "views": views,
+                "published": published,
+                "description": description,
+                "url": f"https://www.youtube.com/watch?v={video_id}",
+                "embed_url": f"https://www.youtube.com/embed/{video_id}",
+            }
+        )
 
         if len(results) >= max_results:
             break

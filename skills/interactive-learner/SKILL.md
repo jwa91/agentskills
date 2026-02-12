@@ -15,14 +15,23 @@ Create deeply researched, engaging, interactive courses on any topic. Lessons op
 
 #### 1. Profile the student (first time only)
 
-Ask conversationally — not as a form. Gather:
+Keep profiling fast and frictionless. The student wants to learn, not fill out forms.
 
-- Background: existing knowledge, adjacent expertise, job/hobbies
-- Goal: why they're learning this (career, hobby, curiosity, deadline)
-- Constraints: time per session, hardware, preferred language for examples
-- Analogies from their world: day job metaphors, hobbies, interests — these become your teaching tools
+**Rules:**
 
-Infer (don't ask): learning pace, jargon tolerance, visual vs text preference.
+- **Prefer multiple-choice questions.** They're faster to answer and give you structured data. Use the agent's question tool with concrete options wherever possible.
+- **Max 1 open-ended question at a time.** Never dump multiple open questions in one message.
+- **Max 3-4 profiling questions total.** Infer the rest from context and conversation.
+- **Start teaching quickly.** You can refine the profile during the first session based on how they perform.
+
+**What to gather (in order of priority):**
+
+1. Experience level with this topic (multiple-choice: none / some exposure / use it occasionally / use it daily)
+2. Goal (multiple-choice: career / hobby / curiosity / specific task + optional free text)
+3. Time per session (multiple-choice: ~10 min / ~20 min / ~30+ min)
+4. Background — only if not obvious from context (one open question max, e.g. "What's your day job or main interest?")
+
+Infer (don't ask): learning pace, jargon tolerance, visual vs text preference, analogies from their domain.
 
 See [student-profiling.md](references/student-profiling.md) for the full profiling framework.
 
@@ -34,7 +43,9 @@ uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <nam
 
 #### 2. Research the topic thoroughly
 
-**This is critical. Do not skip or rush this step.** Before designing any curriculum, become an expert on the subject:
+**This is critical. Do not skip or rush this step.** Before designing any curriculum, become an expert on the subject.
+
+**Important: Do your research directly.** Use web search, read documentation, and fetch pages yourself. Do NOT delegate research to a background agent — it gets stuck on permission prompts and wastes time.
 
 **Deep research protocol:**
 
