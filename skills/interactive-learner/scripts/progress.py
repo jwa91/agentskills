@@ -23,9 +23,9 @@ from pathlib import Path
 
 PROGRESS_FILE = Path.cwd() / ".learner-progress.json"
 
-# --- FSRS-lite constants ---
-# Simplified Free Spaced Repetition Scheduler
-# Stability = how many days until recall probability drops to 90%
+# --- Simplified spaced-repetition constants ---
+# Exponential decay model for concept recall scheduling.
+# Stability = days until recall probability drops to ~37% (1/e).
 INITIAL_STABILITY = 1.0     # 1 day for new concepts
 STABILITY_GROWTH = 2.5      # multiplier on success
 STABILITY_DECAY = 0.5       # multiplier on failure
@@ -134,7 +134,7 @@ def update_concept_mastery(data, course, concepts_dict):
             c = data["concept_mastery"][concept_id]
             # Update mastery with exponential moving average
             c["mastery"] = round(c["mastery"] * 0.3 + score * 0.7, 3)
-            # Update FSRS stability
+            # Update spaced-repetition stability
             if score >= 0.7:
                 c["stability"] = min(c["stability"] * STABILITY_GROWTH, MAX_STABILITY)
             else:
@@ -164,7 +164,7 @@ def update_concept_mastery(data, course, concepts_dict):
 
 
 def get_review_concepts(data, course=None):
-    """Return concepts due for review based on FSRS recall probability."""
+    """Return concepts due for review based on recall probability."""
     if "concept_mastery" not in data:
         return []
 
@@ -194,21 +194,23 @@ def get_review_concepts(data, course=None):
     return due
 
 
+LEVEL_THRESHOLDS = [
+    (0, 1, "Beginner"),
+    (100, 2, "Explorer"),
+    (300, 3, "Practitioner"),
+    (600, 4, "Builder"),
+    (1200, 5, "Specialist"),
+    (2500, 6, "Expert"),
+    (5000, 7, "Master"),
+    (10000, 8, "Grandmaster"),
+]
+
+
 def calculate_level(total_xp):
     """Level thresholds — increasingly spaced."""
-    thresholds = [
-        (0, 1, "Beginner"),
-        (100, 2, "Explorer"),
-        (300, 3, "Practitioner"),
-        (600, 4, "Builder"),
-        (1200, 5, "Specialist"),
-        (2500, 6, "Expert"),
-        (5000, 7, "Master"),
-        (10000, 8, "Grandmaster"),
-    ]
     level = 1
     title = "Beginner"
-    for threshold, lvl, name in thresholds:
+    for threshold, lvl, name in LEVEL_THRESHOLDS:
         if total_xp >= threshold:
             level = lvl
             title = name
@@ -378,6 +380,7 @@ def set_curriculum(course, curriculum_json_path):
         return
 
     c["curriculum"] = sessions
+    c["total_sessions"] = len(sessions)
     save(data)
     print(json.dumps({"saved": True, "course": course, "sessions": len(sessions)}))
 

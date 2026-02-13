@@ -25,7 +25,7 @@ Risk levels: **safe** (always reclaimable, rebuilds automatically), **moderate**
 - **Cache location:** `~/.npm`
 - **Size check:** `du -sh ~/.npm`
 - **Cleanup:** `npm cache clean --force`
-- **Dry run:** `npm cache verify` (shows size, does not delete)
+- **Size check:** `du -sh ~/.npm` (note: `npm cache verify` also works but performs GC as a side effect)
 - **Risk:** safe
 - **Typical savings:** 200 MB - 2 GB
 
@@ -101,6 +101,32 @@ Risk levels: **safe** (always reclaimable, rebuilds automatically), **moderate**
 - **Risk:** safe (source tarballs only)
 - **Typical savings:** 50-500 MB
 - **Notes:** Installed Python versions live in `~/.pyenv/versions/` — only remove those the user explicitly wants gone.
+
+---
+
+## Developer Tool Caches
+
+### Puppeteer
+
+- **Detection:** `~/.cache/puppeteer`
+- **Cleanup:** `rm -rf ~/.cache/puppeteer`
+- **Risk:** safe (re-downloads on next puppeteer use)
+- **Typical savings:** 500 MB - 2 GB
+
+### pre-commit
+
+- **Detection:** `~/.cache/pre-commit`
+- **Cleanup:** `rm -rf ~/.cache/pre-commit`
+- **Risk:** safe (re-clones on next pre-commit run)
+- **Typical savings:** 50-200 MB
+
+### ML/AI Model Caches
+
+- **Detection:** `~/.cache/huggingface`, `~/.ollama/models`
+- **Size check:** `du -sh ~/.cache/huggingface ~/.ollama/models 2>/dev/null`
+- **Cleanup:** selectively delete unused models (list first)
+- **Risk:** medium (re-download can be slow/large; ask before removing)
+- **Typical savings:** 10-50+ GB
 
 ---
 

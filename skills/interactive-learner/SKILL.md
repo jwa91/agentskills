@@ -37,6 +37,8 @@ See [student-profiling.md](references/student-profiling.md) for the full profili
 
 Initialize progress:
 
+> All scripts use `uv run`. If `uv` is not available, use `python3` instead.
+
 ```bash
 uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <name>
 ```
@@ -108,34 +110,68 @@ Save the curriculum and show it to the student as an interactive dashboard:
 
 See [course-design-guide.md](references/course-design-guide.md) for topic-type → component mapping and session patterns.
 
-#### 4. Generate a lesson JSON for the current session
+#### 4. Build the explainer
 
-Build a lesson config using the component catalog:
+Build a lesson config using **only content components** (no scored exercises):
 
 - **MANDATORY: Before generating JSON for ANY component, read its schema in [component-catalog.md](references/component-catalog.md). Do NOT guess field names. Every component has different required fields — using wrong field names produces empty/broken output that silently fails.**
 - See [sharp-edges.md](references/sharp-edges.md) for anti-patterns to avoid
 - Mix component types — no two consecutive sections of the same type
 - Include at least one moment of surprise, delight, or creative challenge per session
-- Keep JSON concise but rich: ~80-150 lines depending on session complexity
-
-#### 5. Build and open the lesson
+- Keep JSON concise but rich: ~60-100 lines
 
 ```bash
-uv run .agents/skills/interactive-learner/scripts/build-lesson.py <lesson.json> --output <path>/lesson.html --open
+uv run .agents/skills/interactive-learner/scripts/build-lesson.py <explainer.json> --mode explainer --course <course-id> --open
 ```
 
-#### 6. Debrief after the session
+Tell the student: "Check the explainer I created for you. Let me know when you've finished reading."
 
-After the student completes the lesson:
+#### 5. Conversational checkpoint
 
-- Update progress with scores AND concept mastery:
-  ```bash
-  uv run .agents/skills/interactive-learner/scripts/progress.py update <course> --session N --score S --max M --concepts '{"pod-basics": 0.9, "deployments": 0.6}'
-  ```
-- Discuss what they found hard or interesting
-- If they did an explain-back or open-answer: evaluate their response, give specific feedback, note misunderstandings for the next session
-- If they had a real-world mission: ask how it went, what they discovered
-- Adjust the next session based on everything you learned
+When the student comes back after reading:
+
+1. **Ask "Was everything clear?"** — discuss any confusion, clarify using your research sources. If the student has questions, answer them thoroughly and refer to the research notes.
+2. **Ask 1 teach-back question in chat** — "Let me quickly check if you're ready for the test: [question about a key concept from the explainer]"
+3. If the student struggles, explain further before proceeding. If they nail it, move to the test.
+
+Open-ended assessment (explain-back, roleplay, open-reflection) happens here in conversation, not in HTML. The agent evaluates responses in real-time.
+
+#### 6. Build the test
+
+Build a test config using **only scored components** + `score-summary`:
+
+- Include `quiz`, `matching`, `fill-blanks`, `sorting-game`, and/or `custom` components
+- Always end with `score-summary`
+- Keep JSON concise: ~40-80 lines
+
+```bash
+uv run .agents/skills/interactive-learner/scripts/build-lesson.py <test.json> --mode test --course <course-id> --open
+```
+
+Tell the student to complete the test and click "Save my results" when done.
+
+#### 7. Debrief after the session
+
+After the student completes the test:
+
+1. Student clicks "Save my results" — a JSON file downloads to `~/Downloads/<course>-session<N>-results.json`
+2. Student tells the agent they're done
+3. Agent reads the results JSON:
+   ```bash
+   cat ~/Downloads/<course>-session<N>-results.json
+   ```
+4. Update progress with scores AND concept mastery:
+   ```bash
+   uv run .agents/skills/interactive-learner/scripts/progress.py update <course> --session N --score S --max M --concepts '{"pod-basics": 0.9, "deployments": 0.6}'
+   ```
+   Assign concept scores based on your knowledge of which test questions tested which concepts.
+5. Rebuild the dashboard:
+   ```bash
+   uv run .agents/skills/interactive-learner/scripts/build-dashboard.py --open
+   ```
+6. Discuss what they found hard or interesting
+7. If they had a real-world mission: ask how it went, what they discovered
+8. Prepare notes for the next session — adjust based on everything you learned
 
 ### Returning student: Review → Adapt → Build next session
 
@@ -173,16 +209,19 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
 
 ## Lesson JSON Structure
 
+Each session produces two JSON files: an **explainer** (content-only) and a **test** (scored exercises). Open-answer questions (explain-back, roleplay, open-reflection) are asked by the agent in conversation between the two phases.
+
+### Explainer JSON (`--mode explainer`)
+
 ```json
 {
   "course_name": "Kubernetes",
   "title": "Why Does Kubernetes Exist?",
   "subtitle": "The problem before the solution",
   "session": 1,
-  "estimated_minutes": 20,
+  "estimated_minutes": 12,
   "xp_start": 0,
   "concepts": ["container-orchestration", "scaling-problem", "self-healing"],
-  "theme_css": "",
   "sections": [
     {
       "type": "story-card",
@@ -190,40 +229,13 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
       "label": "The Problem",
       "content": "<p>Imagine you're running 50 containers...</p>"
     },
-    {
-      "type": "quiz",
-      "questions": [
-        {
-          "question": "Before you learn anything: what do you THINK happens when a container crashes?",
-          "options": ["..."],
-          "correct": 1,
-          "feedback_correct": "...",
-          "feedback_wrong": "..."
-        }
-      ]
-    },
     { "type": "vocab-cards", "terms": [{ "term": "Pod", "icon": "🫛", "definition": "...", "analogy": "..." }] },
     { "type": "video-embed", "youtube_id": "dQw4w9WgXcQ", "title": "Watch This", "intro": "Quick overview." },
     {
       "type": "side-by-side",
-      "title": "A vs B",
-      "left": { "header": "Option A", "icon": "🔵", "items": ["Advantage 1", "Advantage 2"] },
-      "right": { "header": "Option B", "icon": "🟢", "items": ["Advantage 1", "Advantage 2"] }
-    },
-    {
-      "type": "matching",
-      "title": "Match Terms",
-      "pairs": [
-        { "term": "Concept A", "definition": "Explanation A" },
-        { "term": "Concept B", "definition": "Explanation B" }
-      ],
-      "right_order": [1, 0]
-    },
-    {
-      "type": "explain-back",
-      "prompt": "In one sentence, explain why you can't just use Docker alone for 50 containers.",
-      "hint": "Think about what happens when things go wrong at scale.",
-      "concept": "container-orchestration"
+      "title": "Docker Alone vs With Kubernetes",
+      "left": { "header": "Docker Alone", "icon": "🐳", "items": ["You manage everything", "Manual restarts"] },
+      "right": { "header": "With Kubernetes", "icon": "☸️", "items": ["Automated management", "Self-healing"] }
     },
     {
       "type": "real-world-mission",
@@ -231,10 +243,45 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
       "url": "https://labs.play-with-k8s.com/",
       "context": "This is a free Kubernetes playground — no install needed.",
       "followup": "We'll discuss what you found at the start of next session."
+    }
+  ]
+}
+```
+
+### Test JSON (`--mode test`)
+
+```json
+{
+  "course_name": "Kubernetes",
+  "title": "Session 1 Test",
+  "subtitle": "Container orchestration basics",
+  "session": 1,
+  "xp_start": 0,
+  "sections": [
+    {
+      "type": "quiz",
+      "questions": [
+        {
+          "question": "What happens when a container crashes in plain Docker?",
+          "options": ["It auto-restarts", "Nothing — it stays dead", "Docker alerts Kubernetes", "The host reboots"],
+          "correct": 1,
+          "feedback_correct": "Exactly — without orchestration, crashed containers stay down.",
+          "feedback_wrong": "Not quite. Without an orchestrator, Docker won't auto-restart crashed containers."
+        }
+      ]
+    },
+    {
+      "type": "matching",
+      "title": "Match Terms",
+      "pairs": [
+        { "term": "Pod", "definition": "Smallest deployable unit in Kubernetes" },
+        { "term": "Node", "definition": "A machine in the cluster" }
+      ],
+      "right_order": [1, 0]
     },
     {
       "type": "score-summary",
-      "learned": ["Why container orchestration exists"],
+      "learned": ["Why container orchestration exists", "Pod and Node basics"],
       "next_preview": "Next: what Kubernetes actually does about these problems."
     }
   ]
@@ -243,33 +290,21 @@ Options: `--progress <path>` (custom progress file), `--output <path>` (custom o
 
 ## Available Components
 
-### Core (click-based, scored)
+### Explainer phase (content-only, `--mode explainer`)
 
-`quiz` `matching` `fill-blanks` `sorting-game` `simulator`
+`story-card` `vocab-cards` `side-by-side` `video-embed` `timeline` `concept-map` `mind-map` `kanban-board` `radar-profile` `recommended-deep-dive` `debug-challenge` `simulator` `real-world-mission` `community-challenge` `custom`
 
-### Content (explanatory)
+### Test phase (scored, `--mode test`)
 
-`story-card` `vocab-cards` `side-by-side` `video-embed` `timeline` `concept-map`
+`quiz` `matching` `fill-blanks` `sorting-game` `score-summary` `custom`
 
-### Mermaid-native visuals
+### Conversational (asked by agent in chat, not in HTML)
 
-`mind-map` `kanban-board` `radar-profile`
-
-### AI-powered (open-ended, evaluated by agent)
-
-`explain-back` `debug-challenge` `roleplay` `open-reflection`
-
-### Real-world (bridges to the outside)
-
-`real-world-mission` `recommended-deep-dive` `community-challenge`
-
-### Gamification
-
-`score-summary`
+`explain-back` `roleplay` `open-reflection` — these are handled in the conversational checkpoint (Step 5), not rendered into HTML.
 
 ### Escape hatch
 
-`custom` — when no template fits, invent something new.
+`custom` — allowed in both phases. When no template fits, invent something new.
 
 Full JSON schemas and usage guidance: [component-catalog.md](references/component-catalog.md)
 
@@ -279,19 +314,21 @@ Full JSON schemas and usage guidance: [component-catalog.md](references/componen
 uv run .agents/skills/interactive-learner/scripts/find-videos.py "topic for beginners"
 ```
 
+> The video search script scrapes YouTube HTML and may break when YouTube changes their page structure. If it fails, ask the user to search YouTube manually and paste the URL.
+
 Max 2 embedded videos per lesson. But you CAN recommend additional videos/resources via `recommended-deep-dive` components — these are optional extras, not required viewing.
 
 ## Core Rules
 
 1. **Research first.** Never teach from assumptions. Find authoritative, recent sources.
 2. **Bridge from known knowledge.** Read the student profile. Connect every new concept to something they already understand.
-3. **Challenge before explanation** (default). Let the student attempt or predict before you explain. Discovery beats lecture. But always provide narrative context first — start each session with a story-card explanation, not a scored exercise. Ensure at least 30% of the session is explanatory content (story-cards, side-by-side, concept-maps) before interactive exercises.
-4. **Mostly click-based.** The majority of interactions should be click/drag/select. But sprinkle in open-ended moments — they're powerful when used intentionally.
-5. **Open answers are a tool, not a crutch.** Use explain-back, roleplay, or open-reflection for 1-3 moments per session where real thinking matters. The agent evaluates these in the debrief. Never use them as filler.
+3. **Explain, then discuss, then test.** The explainer HTML teaches. The conversation checks understanding and fills gaps. The test HTML assesses. This flow is structurally enforced by `--mode explainer` and `--mode test`.
+4. **Mostly click-based tests.** Test exercises should be click/drag/select. Open-ended assessment happens in conversation (Step 5), not in HTML.
+5. **Conversational teach-back is powerful.** Use the checkpoint between explainer and test to ask 1 teach-back question, discuss confusion, and verify readiness. This replaces the old in-HTML open-answer textareas.
 6. **Max 6 new terms per session.** Each needs an analogy bridging to what the student knows.
 7. **50% practice, 30% content, 20% assessment** — but treat this as a guideline, not a straitjacket. Some sessions are exploration-heavy, some are drill-heavy.
 8. **Vary components.** No two consecutive sections should be the same type.
-9. **Always end with score-summary.**
+9. **Always end tests with score-summary.**
 10. **Be adventurous.** Send students to real websites, sandboxes, and tools. Recommend books, talks, and articles. Ask them to draw something and share it. Suggest they explain a concept to a friend. The lesson HTML is the core, but learning extends beyond it.
 11. **Achievements are dynamic.** Don't use a fixed list. Generate achievements that match the specific course, topic, and student milestones. See [gamification.md](references/gamification.md).
 12. **Every interaction earns data.** Track concept mastery, not just session scores. Feed this into future sessions.

@@ -103,12 +103,18 @@ Heuristic:
 
 ## Session Structure Rules
 
-1. **50% active practice** (interactive components, challenges) — guideline, not law
-2. **30% new content** (story cards, vocab, videos)
-3. **20% assessment** (quizzes, matching, score summary)
-4. **1-3 open-ended moments** per session (explain-back, roleplay, reflection)
-5. **0-1 real-world missions** per session (don't overwhelm with homework)
-6. **0-1 recommended deep-dives** per session (curated, not dumped)
+Each session follows the **explainer → conversation → test** flow:
+
+1. **Explainer HTML** — content-only components that teach the material
+2. **Conversational checkpoint** — agent asks "Was everything clear?", discusses confusion, asks 1 teach-back question
+3. **Test HTML** — scored exercises + score-summary, results download as JSON
+
+Component budget per session:
+1. **Explainer:** 4-8 content components (story cards, vocab, visuals, missions)
+2. **Conversation:** 1 teach-back question + open discussion
+3. **Test:** 3-6 scored components + score-summary
+4. **0-1 real-world missions** per session (don't overwhelm with homework)
+5. **0-1 recommended deep-dives** per session (curated, not dumped)
 
 ## Vocabulary Rules
 
@@ -127,49 +133,73 @@ Heuristic:
 
 ## Session Flow Patterns (vary these!)
 
-### Pattern A: Classic (explain → practice → test)
-story-card → vocab-cards → simulator → quiz → score-summary
+Each pattern now maps to the **explainer → conversation → test** structure. The explainer contains content components, the conversation includes teach-back questions, and the test contains scored exercises.
+
+### Pattern A: Classic
+**Explainer:** story-card → vocab-cards → simulator
+**Conversation:** teach-back on key concept
+**Test:** quiz → matching → score-summary
 
 ### Pattern B: Discovery (challenge first → explain)
-quiz or fill-blanks → "here's what that was about" story-card → vocab → more practice → score
-**This should be the default for most topics.** Productive failure improves retention.
+**Explainer:** debug-challenge or simulator → story-card (reveal) → vocab-cards
+**Conversation:** "What surprised you? Why did that happen?"
+**Test:** quiz → fill-blanks → score-summary
+*Productive failure improves retention. This should be the default for most topics.*
 
 ### Pattern C: Video-led
-video-embed → vocab-cards → interactive practice → quiz → score
+**Explainer:** video-embed → vocab-cards → story-card
+**Conversation:** "What stuck out from the video?"
+**Test:** quiz → matching → score-summary
 
 ### Pattern D: Comparison-driven
-side-by-side → "why the difference?" story-card → vocab → matching → score
+**Explainer:** side-by-side → story-card (why the difference?) → vocab-cards
+**Conversation:** "Which approach would you pick for [scenario]?"
+**Test:** matching → quiz → score-summary
 
 ### Pattern E: Deep dive
-concept-map → click through nodes → detailed story-cards → boss challenge → score
+**Explainer:** concept-map → detailed story-cards → recommended-deep-dive
+**Conversation:** teach-back on relationships between concepts
+**Test:** fill-blanks → sorting-game → score-summary
 
-### Pattern J: Learning board (NEW)
-kanban-board (learning workflow) → challenge block → story-card explanation → score
-*Excellent for project-based learning and multi-session missions.*
-
-### Pattern K: Profile-driven sprint (NEW)
-radar-profile (current vs target) → targeted practice on weakest dimension → explain-back → score
-*Turns assessment into direction rather than judgment.*
-
-### Pattern L: Hierarchy-first (NEW)
-mind-map overview → pick one branch for deep exercise → reflect → score
-*Strong for complex domains where learners get lost in detail too early.*
-
-### Pattern F: Investigation (NEW)
-real-world-mission or observe-task → story-card explaining what they saw → vocab → practice → score
+### Pattern F: Investigation
+**Explainer:** real-world-mission → story-card explaining what they'll see → vocab
+**Conversation:** "What did you find? Why do you think it works that way?"
+**Test:** quiz → matching → score-summary
 *Start by sending them somewhere real, then explain what they experienced.*
 
-### Pattern G: Socratic (NEW)
-quiz (predict) → story-card (reveal + explain) → explain-back (restate in own words) → practice → score
-*The student hypothesizes, discovers, then articulates. Maximum cognitive engagement.*
+### Pattern G: Socratic
+**Explainer:** story-card (setup) → concept-map → vocab-cards
+**Conversation:** prediction question → reveal → "restate in your own words"
+**Test:** quiz → fill-blanks → score-summary
+*Maximum cognitive engagement through hypothesize-discover-articulate.*
 
-### Pattern H: Debug-driven (NEW — great for technical topics)
-debug-challenge → story-card (the concept behind the bug) → vocab → fill-blanks (build it correctly) → score
-*Start with something broken. Understanding what's wrong teaches what's right.*
+### Pattern H: Debug-driven (great for technical topics)
+**Explainer:** debug-challenge → story-card (the concept behind the bug) → vocab
+**Conversation:** "Why did that bug happen? What's the general principle?"
+**Test:** fill-blanks (build it correctly) → quiz → score-summary
 
-### Pattern I: Creative exploration (NEW — great for creative/language topics)
-roleplay scenario → story-card (principles behind good responses) → practice → open-reflection → score
-*Start with doing, then explain why some approaches work better than others.*
+### Pattern I: Creative exploration (great for creative/language topics)
+**Explainer:** story-card (principles) → side-by-side (good vs bad examples)
+**Conversation:** roleplay scenario → discuss approach
+**Test:** sorting-game → matching → score-summary
+
+### Pattern J: Learning board
+**Explainer:** kanban-board (learning workflow) → story-card explanation
+**Conversation:** discuss priorities and next actions
+**Test:** quiz → matching → score-summary
+*Excellent for project-based learning and multi-session missions.*
+
+### Pattern K: Profile-driven sprint
+**Explainer:** radar-profile (current vs target) → story-card on weakest dimension
+**Conversation:** teach-back on the targeted gap
+**Test:** quiz → fill-blanks → score-summary
+*Turns assessment into direction rather than judgment.*
+
+### Pattern L: Hierarchy-first
+**Explainer:** mind-map overview → story-card on one branch
+**Conversation:** "How does [branch] connect to the bigger picture?"
+**Test:** matching → sorting-game → score-summary
+*Strong for complex domains where learners get lost in detail too early.*
 
 ## Course Length Guidelines
 

@@ -86,9 +86,13 @@ def human_size(nbytes):
 
 
 def get_mtime_days(path):
-    """Return days since last modification of any file under path."""
+    """Return days since last modification.
+
+    Checks top-level files in *path* (for performance on large dirs) and
+    also the directory's own mtime, then takes the more recent of the two.
+    """
     try:
-        latest = 0
+        latest = os.stat(path).st_mtime
         for dirpath, _dirnames, filenames in os.walk(path, followlinks=False):
             for f in filenames:
                 try:
@@ -99,8 +103,6 @@ def get_mtime_days(path):
                     pass
             # Only check top-level files for speed on large dirs.
             break
-        if latest == 0:
-            latest = os.stat(path).st_mtime
         return int((time.time() - latest) / 86400)
     except OSError:
         return -1
@@ -357,7 +359,11 @@ def scan_browsers():
 
 
 def default_dev_dirs():
-    """Return sensible default dev directories that exist."""
+    """Return sensible default dev directories that exist.
+
+    Deduplicates by resolved real path so that case-insensitive filesystems
+    (default on macOS) don't scan the same directory twice.
+    """
     candidates = [
         "~/developer",
         "~/Developer",
@@ -371,9 +377,14 @@ def default_dev_dirs():
         "~/repos",
         "~/Repos",
     ]
-    return [
-        c for c in candidates if os.path.isdir(os.path.expanduser(c))
-    ]
+    seen = set()
+    result = []
+    for c in candidates:
+        real = os.path.realpath(os.path.expanduser(c))
+        if os.path.isdir(real) and real not in seen:
+            seen.add(real)
+            result.append(c)
+    return result
 
 
 def main():
@@ -423,7 +434,7 @@ def main():
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = {pool.submit(fn): name for name, fn in tasks.items()}
 
-        # Dev artifacts scan runs in main thread after quick scans.
+        # Dev artifacts scan runs in thread pool alongside quick scans.
         dev_future = pool.submit(
             scan_dev_artifacts, dev_dirs, args.stale_days, args.skip
         )

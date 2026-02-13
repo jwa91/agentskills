@@ -17,7 +17,8 @@ These rules are non-negotiable. Follow them at all times:
 1. **Never delete without approval.** Always show what will be deleted, its size, and get explicit user confirmation before executing any destructive command.
 2. **Never `rm -rf` app bundles.** Use Finder via osascript to move apps to Trash:
    `osascript -e 'tell application "Finder" to delete POSIX file "/Applications/App.app"'`
-3. **Never clear browser data programmatically.** Suggest the user do it from browser settings.
+3. **Never clear browser profile data** (cookies, history, passwords in ~/Library/Application Support/).
+   OS-level browser caches in ~/Library/Caches/ are safe to remove like any app cache.
 4. **Honor protected paths.** Ask the user for any paths that should be skipped, and never touch them.
 5. **Never touch `.git` directories.** Only clean merged branches (via `git branch -d`), never remove `.git` itself.
 6. **Never touch system directories.** `/System`, `/Library` (root level), `/usr`, `/bin`, `/sbin` are off-limits.
@@ -39,19 +40,22 @@ Before scanning, gather context about the system:
 - Identify dev directories — check common locations: `~/developer`, `~/Developer`, `~/dev`, `~/projects`, `~/Projects`, `~/src`, `~/code`, `~/workspace`, `~/repos`
 - Ask the user:
   - Are there additional dev directories to scan?
-  - Are there paths that should be protected/skipped?
   - Should the stale threshold be something other than 90 days?
+
+Note: The scan script's tool detection (`shutil.which()`) is authoritative — it may find tools that the shell's `which` misses due to PATH differences.
 
 ### 2. Scan
 
 Run the scan script with the discovered configuration:
 
 ```bash
-python3 .agents/skills/mac-cleanup/scripts/scan.py \
+uv run .agents/skills/mac-cleanup/scripts/scan.py \
   --dev-dirs <discovered_dirs> \
   --stale-days <threshold> \
   --skip <protected_paths>
 ```
+
+If `uv` is not available, fall back to `python3`.
 
 The script runs all checks in parallel and outputs a JSON report to stdout. Read the full JSON output to understand what's on the system.
 
@@ -81,6 +85,8 @@ Sort by size (largest first). Flag risk levels:
 
 ### 4. Clean Up Interactively
 
+Before starting, ask the user if there are paths that should be protected/skipped during cleanup.
+
 Walk through categories from safest to riskiest. For each:
 
 1. Show exactly what will be deleted and its size
@@ -100,7 +106,7 @@ Consult `references/cleanup-catalog.md` for the correct detection, cleanup comma
 5. Merged git branches
 6. System caches (`~/Library/Caches` — per-subdirectory, with breakdown)
 7. Docker (show `docker system df`, ask about aggressiveness level)
-8. Homebrew — unused formulae/casks (list installed, ask which are unused)
+8. Homebrew — unused formulae/casks (list installed as a table with `| App | Size | Description |` using `brew info --json` for descriptions and sizes, ask which are unused)
 9. Trash
 10. Downloads (show largest files, never bulk-delete without review)
 11. Application uninstall (if user wants — quit first, use Finder, clean support files)
@@ -133,7 +139,10 @@ After all cleanup actions are complete, show:
 
 ## Edge Cases
 
-- **Docker not running:** Skip Docker section entirely. Mention it was skipped because the daemon isn't running.
+- **Docker not running:** Docker images/containers can use 10+ GB. Ask the user:
+  "Docker is installed but not running. Want to start Docker Desktop to check for reclaimable space?"
+  If yes: `open -a Docker`, wait for daemon readiness (poll `docker info` up to 30s).
+  If no: flag prominently in report: "Docker skipped (not running) — restart and re-run to check."
 - **No dev directories found:** Skip dev artifact scan. Ask the user if they have dev work in a non-standard location.
 - **Intel Mac:** Use `/usr/local` for Homebrew prefix. All other commands work the same.
 - **Command failures:** Log the error, skip that category, continue with the rest. Report all errors at the end.

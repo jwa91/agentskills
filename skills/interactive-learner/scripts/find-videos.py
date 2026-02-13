@@ -4,6 +4,10 @@
 # ///
 """Search YouTube for educational videos relevant to a lesson topic.
 
+NOTE: This script scrapes YouTube HTML (ytInitialData). YouTube changes
+their HTML structure frequently — if this breaks, the fallback is to
+ask the user to search YouTube manually and paste the URL.
+
 Usage:
     uv run .agents/skills/interactive-learner/scripts/find-videos.py "kubernetes pods explained" [--max 5]
 

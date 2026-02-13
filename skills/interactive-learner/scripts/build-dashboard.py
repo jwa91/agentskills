@@ -18,33 +18,20 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-SKILL_DIR = Path(__file__).resolve().parent.parent
+SCRIPT_DIR = Path(__file__).resolve().parent
+SKILL_DIR = SCRIPT_DIR.parent
 SHELL_PATH = SKILL_DIR / "assets" / "dashboard-shell.html"
 DEFAULT_PROGRESS = Path.cwd() / ".learner-progress.json"
 
-# ── XP level thresholds ──
-LEVELS = [
-    (0, "Beginner", "🌱"),
-    (100, "Apprentice", "📗"),
-    (300, "Student", "📘"),
-    (600, "Scholar", "📕"),
-    (1000, "Expert", "🎓"),
-    (1500, "Master", "🏆"),
-    (2500, "Grandmaster", "👑"),
-]
-
-# ── All possible achievements ──
-ALL_ACHIEVEMENTS = {
-    "first-lesson": {"name": "First Blood", "icon": "🎯", "desc": "Complete your first lesson"},
-    "perfect-score": {"name": "Perfectionist", "icon": "💯", "desc": "Get a perfect score"},
-    "three-perfect": {"name": "On Fire", "icon": "🔥", "desc": "3 perfect scores in a row"},
-    "streak-3": {"name": "Consistent", "icon": "📅", "desc": "3-day learning streak"},
-    "streak-7": {"name": "Dedicated", "icon": "🗓️", "desc": "7-day learning streak"},
-    "curious-mind": {"name": "Curious Mind", "icon": "❓", "desc": "Ask 5+ questions"},
-    "module-complete": {"name": "Milestone", "icon": "🏔️", "desc": "Complete a full module"},
-    "graduate": {"name": "Graduate", "icon": "🎓", "desc": "Complete an entire course"},
-    "renaissance": {"name": "Renaissance", "icon": "🌟", "desc": "Study 3+ different topics"},
-}
+# ── XP level thresholds (imported from progress.py — single source of truth) ──
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location("progress", SCRIPT_DIR / "progress.py")
+_prog = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_prog)
+LEVELS = [(xp, name, "") for xp, _lvl, name in _prog.LEVEL_THRESHOLDS]
+# Assign icons per level
+_LEVEL_ICONS = ["🌱", "🧭", "🔧", "🏗️", "🎯", "🎓", "🏆", "👑"]
+LEVELS = [(xp, name, _LEVEL_ICONS[i] if i < len(_LEVEL_ICONS) else "⭐") for i, (xp, name, _) in enumerate(LEVELS)]
 
 
 def get_level(xp):
@@ -192,16 +179,14 @@ def build_curriculum_section(course_id, course_data, delay_idx):
             icon = ""
             score_html = ""
 
-        obj_tags = "".join(
-            f'<span class="cur-tag">{html.escape(o)}</span>' for o in objectives
+        obj_list = "".join(
+            f'<li>{html.escape(o)}</li>' for o in objectives
         )
-        concept_tags = "".join(
-            f'<span class="cur-concept">{html.escape(c)}</span>' for c in concepts
-        )
+        obj_html = f'<ul class="cur-objectives">{obj_list}</ul>' if obj_list else ""
 
         est_html = f'<span class="cur-est">{est} min</span>' if est else ""
 
-        sessions_html += f'''<div class="cur-session {status}" onclick="this.classList.toggle('expanded')">
+        sessions_html += f'''<div class="cur-session {status}">
       <div class="cur-session-header">
         {icon}
         <span class="cur-session-num">Session {num}</span>
@@ -211,8 +196,7 @@ def build_curriculum_section(course_id, course_data, delay_idx):
       </div>
       <div class="cur-details">
         <p class="cur-desc">{desc}</p>
-        <div class="cur-tags">{obj_tags}</div>
-        <div class="cur-concepts">{concept_tags}</div>
+        {obj_html}
       </div>
     </div>\n'''
 
@@ -231,88 +215,50 @@ def build_achievements(earned_items):
     earned_items = earned_items or []
     has_dynamic = any(isinstance(item, dict) for item in earned_items)
 
-    # Dynamic mode: render earned achievements directly.
-    if has_dynamic:
-        normalized = []
-        seen = set()
+    # Normalize all items into dicts.
+    normalized = []
+    seen = set()
 
-        for item in earned_items:
-            if isinstance(item, dict):
-                aid = str(item.get("id") or item.get("name") or "").strip()
-                if not aid:
-                    continue
-                if aid in seen:
-                    continue
-                seen.add(aid)
-                normalized.append({
-                    "id": aid,
-                    "icon": item.get("icon", "🏅"),
-                    "name": item.get("name", aid.replace("-", " ").replace("_", " ").title()),
-                    "desc": item.get("description", item.get("desc", "Achievement unlocked")),
-                })
-            elif isinstance(item, str):
-                aid = item
-                if aid in seen:
-                    continue
-                seen.add(aid)
-                info = ALL_ACHIEVEMENTS.get(aid)
-                if info:
-                    normalized.append({
-                        "id": aid,
-                        "icon": info["icon"],
-                        "name": info["name"],
-                        "desc": info["desc"],
-                    })
-                else:
-                    normalized.append({
-                        "id": aid,
-                        "icon": "🏅",
-                        "name": aid.replace("-", " ").replace("_", " ").title(),
-                        "desc": "Achievement unlocked",
-                    })
+    for item in earned_items:
+        if isinstance(item, dict):
+            aid = str(item.get("id") or item.get("name") or "").strip()
+            if not aid or aid in seen:
+                continue
+            seen.add(aid)
+            normalized.append({
+                "id": aid,
+                "icon": item.get("icon", "🏅"),
+                "name": item.get("name", aid.replace("-", " ").replace("_", " ").title()),
+                "desc": item.get("description", item.get("desc", "Achievement unlocked")),
+            })
+        elif isinstance(item, str):
+            aid = item
+            if aid in seen:
+                continue
+            seen.add(aid)
+            normalized.append({
+                "id": aid,
+                "icon": "🏅",
+                "name": aid.replace("-", " ").replace("_", " ").title(),
+                "desc": "Achievement unlocked",
+            })
 
-        if not normalized:
-            return '''<div class="achievements-card animate-in delay-5">
-  <h2>Achievements (0)</h2>
-  <div class="badge-grid">
-    <div class="badge locked">
-      <span class="badge-icon">🏁</span>
-      <span class="badge-name">No Achievements Yet</span>
-      <span class="badge-desc">Complete a session to unlock your first one</span>
-    </div>
-  </div>
+    if not normalized:
+        return '''<div class="achievements-card animate-in delay-5">
+  <h2>Achievements</h2>
+  <p class="empty-state">Complete lessons to unlock achievements unique to your course!</p>
 </div>'''
 
-        badges = ""
-        for ach in normalized:
-            badges += f'''<div class="badge earned">
+    badges = ""
+    for ach in normalized:
+        badges += f'''<div class="badge earned">
       <span class="badge-icon">{ach["icon"]}</span>
       <span class="badge-name">{html.escape(ach["name"])}</span>
       <span class="badge-desc">{html.escape(ach["desc"])}</span>
     </div>\n'''
 
-        return f'''<div class="achievements-card animate-in delay-5">
-  <h2>Achievements ({len(normalized)})</h2>
-  <div class="badge-grid">{badges}</div>
-</div>'''
-
-    # Legacy mode: show a complete achievement library with locked states.
-    earned_ids = [item for item in earned_items if isinstance(item, str)]
-    badges = ""
-    for aid, info in ALL_ACHIEVEMENTS.items():
-        earned = aid in earned_ids
-        cls = "badge earned" if earned else "badge locked"
-        badges += f'''<div class="{cls}">
-      <span class="badge-icon">{info["icon"]}</span>
-      <span class="badge-name">{html.escape(info["name"])}</span>
-      <span class="badge-desc">{html.escape(info["desc"])}</span>
-    </div>\n'''
-
-    earned_count = len([a for a in earned_ids if a in ALL_ACHIEVEMENTS])
-    total_count = len(ALL_ACHIEVEMENTS)
-
     return f'''<div class="achievements-card animate-in delay-5">
-  <h2>Achievements ({earned_count}/{total_count})</h2>
+  <h2>Achievements ({len(normalized)})</h2>
   <div class="badge-grid">{badges}</div>
 </div>'''
 

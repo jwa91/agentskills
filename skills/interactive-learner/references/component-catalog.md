@@ -2,9 +2,19 @@
 
 Reference for all available lesson components. Each component is rendered by `build-lesson.py` from a JSON config.
 
+## Two-Phase Model
+
+Each session produces two HTML files:
+
+- **Explainer phase** (`--mode explainer`): Content-only components that teach the material. Allowed: `story-card`, `vocab-cards`, `side-by-side`, `video-embed`, `timeline`, `concept-map`, `mind-map`, `kanban-board`, `radar-profile`, `recommended-deep-dive`, `debug-challenge`, `simulator`, `real-world-mission`, `community-challenge`, `custom`.
+- **Test phase** (`--mode test`): Scored exercise components that assess understanding. Allowed: `quiz`, `matching`, `fill-blanks`, `sorting-game`, `score-summary`, `custom`.
+- **Conversational** (not in HTML): `explain-back`, `roleplay`, `open-reflection` — asked by the agent in chat between the explainer and test phases.
+
+If `--mode` is set and a section uses a disallowed component type, `build-lesson.py` raises a clear error.
+
 ---
 
-## Core Components (click-based, scored)
+## Core Components (click-based, scored — test phase)
 
 ### quiz
 Multiple choice questions with instant feedback. The workhorse assessment component.
@@ -61,7 +71,7 @@ Custom simulation with entities, buttons, and log. Handlers are raw JS. Use for 
 
 ---
 
-## Content Components (explanatory, non-scored)
+## Content Components (explanatory, non-scored — explainer phase)
 
 ### story-card
 Narrative block with colored sidebar. Use for explanations, scenarios, recaps, motivating stories.
@@ -188,9 +198,9 @@ Mermaid notes:
 
 ---
 
-## AI-Powered Components (open-ended, evaluated by agent in debrief)
+## AI-Powered Components (conversational — handled by agent in chat)
 
-These components produce **open responses** that the student provides after the lesson. The agent evaluates them in the post-session debrief conversation. Use 1-3 per session maximum — they're powerful but expensive cognitively.
+These are **asked by the agent in conversation** between the explainer and test phases, not rendered into HTML. Use 1-2 per session maximum in the conversational checkpoint. The JSON schemas below document what the agent should ask — they are not passed to `build-lesson.py`.
 
 ### explain-back
 The student explains a concept in their own words. Based on the Feynman technique — if you can't explain it simply, you don't understand it.
@@ -201,9 +211,9 @@ The student explains a concept in their own words. Based on the Feynman techniqu
  "concept": "container-orchestration",
  "eval_criteria": "Should mention: scale/many containers, automation of recovery, and human limitation at scale"}
 ```
-- The lesson HTML renders this as a text area with the prompt and hint
-- `eval_criteria` is for the agent — it reads the student's response in the debrief and evaluates against these criteria
-- This is NOT auto-graded in HTML. The value is in the agent's nuanced feedback afterward
+- The agent asks this question in conversation during the checkpoint (Step 5), not in HTML
+- `eval_criteria` guides the agent's real-time evaluation of the student's response
+- The agent gives immediate nuanced feedback in the conversation
 
 ### debug-challenge
 Present broken code, config, or logic. The student finds and explains the bug. Validated by SIGCSE 2025 research — debugging exercises match instructor-crafted quality.
@@ -242,7 +252,7 @@ A moment of metacognition. Ask the student to reflect on their learning, connect
 
 ---
 
-## Real-World Components (bridges to the outside)
+## Real-World Components (bridges to the outside — explainer phase)
 
 These components break the fourth wall — they send the student into the real world to do, explore, or experience something. This is where learning gets memorable.
 

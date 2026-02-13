@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build a lesson HTML file from a JSON config + shell template + component renderers.
 
-Usage: uv run .agents/skills/interactive-learner/scripts/build-lesson.py <lesson.json> [--output <path>] [--open]
+Usage: uv run .agents/skills/interactive-learner/scripts/build-lesson.py <lesson.json> --mode explainer|test [--course <id>] [--output <path>] [--open]
 """
 
 import argparse
@@ -22,6 +22,33 @@ MERMAID_COMPONENT_TYPES = {
     "mind-map",
     "kanban-board",
     "radar-profile",
+}
+
+EXPLAINER_TYPES = {
+    "story-card",
+    "vocab-cards",
+    "side-by-side",
+    "video-embed",
+    "timeline",
+    "concept-map",
+    "mind-map",
+    "kanban-board",
+    "radar-profile",
+    "recommended-deep-dive",
+    "debug-challenge",
+    "simulator",
+    "real-world-mission",
+    "community-challenge",
+    "custom",
+}
+
+TEST_TYPES = {
+    "quiz",
+    "matching",
+    "fill-blanks",
+    "sorting-game",
+    "score-summary",
+    "custom",
 }
 
 
@@ -852,31 +879,6 @@ def render_radar_profile(cfg, idx):
     return h, ""
 
 
-def render_explain_back(cfg, idx):
-    title = html.escape(cfg.get("title", "Teach It Back"))
-    prompt = cfg.get("prompt", "Explain the concept in your own words.")
-    hint = cfg.get("hint", "")
-    concept = html.escape(cfg.get("concept", ""))
-    criteria = cfg.get("eval_criteria", "")
-    hint_html = f'<div class="oa-hint"><strong>Hint:</strong> {hint}</div>' if hint else ""
-    meta_parts = []
-    if concept:
-        meta_parts.append(f"Concept: {concept}")
-    if criteria:
-        meta_parts.append("Evaluation criteria available in debrief")
-    meta_html = f'<p class="oa-meta">{" · ".join(meta_parts)}</p>' if meta_parts else ""
-    h = section_html(
-        idx,
-        f"""<h2>{title}</h2>
-<div class="oa-card">
-  <p class="oa-prompt">{prompt}</p>
-  {hint_html}
-  {meta_html}
-</div>""",
-    )
-    return h, ""
-
-
 def render_debug_challenge(cfg, idx):
     title = html.escape(cfg.get("title", "Find the Bug"))
     bug_description = cfg.get("bug_description", "Find the bug and explain why it fails.")
@@ -907,43 +909,6 @@ def render_debug_challenge(cfg, idx):
   el.classList.toggle('show');
 }}"""
     return h, js
-
-
-def render_roleplay(cfg, idx):
-    title = html.escape(cfg.get("title", "Roleplay"))
-    scenario = cfg.get("scenario", "")
-    prompt = cfg.get("prompt", "How would you respond?")
-    context = cfg.get("context", "")
-    concept = html.escape(cfg.get("concept", ""))
-    context_html = f'<div class="oa-hint"><strong>Context:</strong> {context}</div>' if context else ""
-    concept_html = f'<p class="oa-meta">Concept: {concept}</p>' if concept else ""
-    h = section_html(
-        idx,
-        f"""<h2>{title}</h2>
-<div class="oa-card">
-  <p><strong>Scenario:</strong> {scenario}</p>
-  <p class="oa-prompt">{prompt}</p>
-  {context_html}
-  {concept_html}
-</div>""",
-    )
-    return h, ""
-
-
-def render_open_reflection(cfg, idx):
-    title = html.escape(cfg.get("title", "Reflect"))
-    prompt = cfg.get("prompt", "What did you learn and where can you apply it?")
-    context = cfg.get("context", "")
-    context_html = f'<div class="oa-hint">{context}</div>' if context else ""
-    h = section_html(
-        idx,
-        f"""<h2>{title}</h2>
-<div class="oa-card">
-  <p class="oa-prompt">{prompt}</p>
-  {context_html}
-</div>""",
-    )
-    return h, ""
 
 
 def render_real_world_mission(cfg, idx):
@@ -1067,6 +1032,7 @@ def render_score_summary(cfg, idx):
 </div>
 {next_html}
 {missions_html}
+<button class="sim-btn" onclick="saveResults()" style="margin:var(--space-4) auto 0;display:block">Save my results</button>
 <p class="summary-footnote">Head back to Claude to continue!</p>""",
     )
 
@@ -1100,6 +1066,26 @@ def render_score_summary(cfg, idx):
 
   document.getElementById('scoreLabel').textContent = label;
   document.getElementById('scoreXp').textContent = '⚡ ' + LES.xp + ' XP this session';
+}
+
+function saveResults() {
+  const data = {
+    course: LES.course,
+    session: LES.session,
+    score: LES.score,
+    max_score: LES.maxScore,
+    xp_earned: LES.xp,
+    completed_at: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = LES.course + '-session' + LES.session + '-results.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  const btn = document.querySelector('[onclick="saveResults()"]');
+  if (btn) { btn.textContent = 'Saved!'; btn.disabled = true; }
 }"""
     return h, js
 
@@ -1128,10 +1114,7 @@ RENDERERS = {
     "mind-map": render_mind_map,
     "kanban-board": render_kanban_board,
     "radar-profile": render_radar_profile,
-    "explain-back": render_explain_back,
     "debug-challenge": render_debug_challenge,
-    "roleplay": render_roleplay,
-    "open-reflection": render_open_reflection,
     "real-world-mission": render_real_world_mission,
     "recommended-deep-dive": render_recommended_deep_dive,
     "community-challenge": render_community_challenge,
@@ -1140,9 +1123,12 @@ RENDERERS = {
 }
 
 
-def build_lesson(config, output_path=None):
+def build_lesson(config, output_path=None, *, mode, course=None):
     shell = SHELL_PATH.read_text()
     component_css = COMPONENT_CSS_PATH.read_text()
+
+    allowed_types = EXPLAINER_TYPES if mode == "explainer" else TEST_TYPES
+    course_id = course or config.get("course_id", "")
 
     sections_parts = []
     script_parts = []
@@ -1153,6 +1139,13 @@ def build_lesson(config, output_path=None):
         section_type = section.get("type")
         if not section_type:
             raise ValueError(f"Section {idx} is missing required field 'type'.")
+
+        if section_type not in allowed_types:
+            raise ValueError(
+                f"Section {idx} uses type '{section_type}' which is not allowed in "
+                f"'{mode}' mode. Allowed types: {', '.join(sorted(allowed_types))}."
+            )
+
         renderer = RENDERERS.get(section_type)
         if renderer is None:
             supported = ", ".join(sorted(RENDERERS.keys()))
@@ -1182,13 +1175,19 @@ def build_lesson(config, output_path=None):
     result = result.replace("{{ESTIMATED_MINUTES}}", str(config.get("estimated_minutes", 15)))
     result = result.replace("{{XP_START}}", str(config.get("xp_start", 0)))
     result = result.replace("{{XP_DISPLAY}}", f"⚡ {config.get('xp_start', 0)} XP")
+    result = result.replace("{{COURSE_ID}}", html.escape(str(course_id)))
     result = result.replace("{{COMPONENT_CSS}}", component_css)
     result = result.replace("{{THEME_CSS}}", normalize_theme_css(config.get("theme_css", "")))
     result = result.replace("{{SECTIONS}}", "\n".join(sections_parts))
     result = result.replace("{{COMPONENT_SCRIPTS}}", "\n".join(script_parts))
     result = result.replace("{{MODULE_SCRIPTS}}", module_scripts)
 
-    out_path = Path(output_path) if output_path else (Path.cwd() / f"lesson-{config.get('session', 1)}.html")
+    if output_path:
+        out_path = Path(output_path)
+    elif mode == "explainer":
+        out_path = Path.cwd() / f"{course_id or 'lesson'}-s{config.get('session', 1)}-explainer.html"
+    else:
+        out_path = Path.cwd() / f"{course_id or 'lesson'}-s{config.get('session', 1)}-test.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(result)
     return str(out_path)
@@ -1199,12 +1198,19 @@ def main():
     parser.add_argument("config", help="Path to lesson JSON config file")
     parser.add_argument("--output", "-o", help="Output HTML file path")
     parser.add_argument("--open", action="store_true", help="Open in browser after building")
+    parser.add_argument(
+        "--mode",
+        required=True,
+        choices=["explainer", "test"],
+        help="Build mode: 'explainer' (content-only) or 'test' (scored components + score-summary)",
+    )
+    parser.add_argument("--course", help="Course identifier (used in output filenames and results JSON)")
     args = parser.parse_args()
 
     with open(args.config, encoding="utf-8") as f:
         config = json.load(f)
 
-    out = build_lesson(config, args.output)
+    out = build_lesson(config, args.output, mode=args.mode, course=args.course)
     print(f"✅ Lesson built: {out}")
 
     if args.open:
