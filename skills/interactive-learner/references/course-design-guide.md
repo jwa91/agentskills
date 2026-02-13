@@ -32,6 +32,19 @@ This file becomes a permanent reference for the student.
 
 ---
 
+## Content-First Design Process
+
+Design the *explanation* before choosing components:
+
+1. **List what needs to be taught** — ideas, concepts, aha moments, key vocabulary
+2. **Structure the narrative flow** — what order makes the lightbulbs go on?
+3. **Then choose components for each piece** — which component best delivers each part of the narrative?
+4. **Component variety happens naturally** when you follow content — if three story-cards in a row is the clearest way to teach something, that's fine
+
+Don't start from "I need one of each component type." Start from "here's what I want the student to understand, and here's how I'd explain it in conversation."
+
+---
+
 ## Topic Type → Component Selection
 
 ### Mermaid-native visual toolkit (cross-topic)
@@ -107,14 +120,14 @@ Each session follows the **explainer → conversation → test** flow:
 
 1. **Explainer HTML** — content-only components that teach the material
 2. **Conversational checkpoint** — agent asks "Was everything clear?", discusses confusion, asks 1 teach-back question
-3. **Test HTML** — scored exercises + score-summary, results download as JSON
+3. **Test HTML** — scored exercises + score-summary, student gets a result code to paste back in chat
 
 Component budget per session:
-1. **Explainer:** 4-8 content components (story cards, vocab, visuals, missions)
+1. **Explainer:** 4-8 content components chosen to best serve learning goals (not one-of-each)
 2. **Conversation:** 1 teach-back question + open discussion
 3. **Test:** 3-6 scored components + score-summary
 4. **0-1 real-world missions** per session (don't overwhelm with homework)
-5. **0-1 recommended deep-dives** per session (curated, not dumped)
+5. **1 `recommended-deep-dive`** at the end of every explainer (curated from research)
 
 ## Vocabulary Rules
 

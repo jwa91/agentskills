@@ -266,6 +266,7 @@ def render_quiz(cfg, idx):
   fb.className = 'quiz-fb show ' + (correct ? 'correct' : 'wrong');
   LES.score += correct ? 1 : 0;
   LES.maxScore += 1;
+  LES.results.push(correct ? 1 : 0);
   addXp(correct ? 10 : 0);
   updateScore();
 }"""
@@ -337,6 +338,7 @@ function mRight(el, gid) {
     document.getElementById('ms_' + gid).textContent = mSt[gid].c + ' / ' + total + (mSt[gid].c === total ? ' ✓' : '');
     LES.score += 1;
     LES.maxScore += 1;
+    LES.results.push(1);
     addXp(10);
     updateScore();
     mSt[gid].left = null;
@@ -420,6 +422,7 @@ function fbPick(el, gid) {{
     fbSt[gid].c++;
     LES.score += 1;
     LES.maxScore += 1;
+    LES.results.push(1);
     addXp(15);
     updateScore();
 
@@ -465,7 +468,7 @@ def render_side_by_side(cfg, idx):
         bullet = html.escape(str(col.get("bullet", "•")))
         items = col.get("items", [])
         items_html = "".join(
-            f'<li><span class="cmp-b">{bullet}</span> {html.escape(str(item))}</li>'
+            f'<li><span class="cmp-b">{bullet}</span> {str(item)}</li>'
             for item in items
         )
         return f"""<div class="cmp-col {cls}">
@@ -639,10 +642,13 @@ function chkSort(gid) {{
 
   const fb = document.getElementById('sfb_' + gid);
   if (ok) {{
+    if (document.getElementById('sort_' + gid).dataset.scored) return;
+    document.getElementById('sort_' + gid).dataset.scored = '1';
     fb.textContent = 'Correct order!';
     fb.className = 'fb-result show correct';
     LES.score += 1;
     LES.maxScore += 1;
+    LES.results.push(1);
     addXp(15);
     updateScore();
   }} else {{
@@ -1032,7 +1038,8 @@ def render_score_summary(cfg, idx):
 </div>
 {next_html}
 {missions_html}
-<button class="sim-btn" onclick="saveResults()" style="margin:var(--space-4) auto 0;display:block">Save my results</button>
+<button class="sim-btn" onclick="encodeResults()" style="margin:var(--space-4) auto 0;display:block">Get my result code</button>
+<div id="resultCodeDisplay" style="display:none"></div>
 <p class="summary-footnote">Head back to Claude to continue!</p>""",
     )
 
@@ -1068,24 +1075,41 @@ def render_score_summary(cfg, idx):
   document.getElementById('scoreXp').textContent = '⚡ ' + LES.xp + ' XP this session';
 }
 
-function saveResults() {
-  const data = {
-    course: LES.course,
-    session: LES.session,
-    score: LES.score,
-    max_score: LES.maxScore,
-    xp_earned: LES.xp,
-    completed_at: new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = LES.course + '-session' + LES.session + '-results.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  const btn = document.querySelector('[onclick="saveResults()"]');
-  if (btn) { btn.textContent = 'Saved!'; btn.disabled = true; }
+function encodeResults() {
+  const rLen = Math.ceil(LES.results.length / 8);
+  const buf = new Uint8Array(5 + rLen);
+  buf[0] = LES.session & 0xFF;
+  buf[1] = LES.score & 0xFF;
+  buf[2] = LES.maxScore & 0xFF;
+  buf[3] = (LES.xp >> 8) & 0xFF;
+  buf[4] = LES.xp & 0xFF;
+  for (let i = 0; i < LES.results.length; i++) {
+    if (LES.results[i]) buf[5 + (i >> 3)] |= (1 << (i & 7));
+  }
+  const key = [0x7A, 0x3E, 0x9C, 0x51];
+  for (let i = 0; i < buf.length; i++) buf[i] ^= key[i & 3];
+  let n = 0n;
+  for (let i = 0; i < buf.length; i++) n = (n << 8n) | BigInt(buf[i]);
+  let enc = n.toString(36).toUpperCase();
+  let ck = 0;
+  for (let i = 0; i < buf.length; i++) ck += buf[i];
+  ck %= 1296;
+  enc += (ck).toString(36).toUpperCase().padStart(2, '0');
+  const pfx = LES.course.replace(/[^a-zA-Z0-9]/g,'').substring(0,4).toUpperCase();
+  const chunks = enc.match(/.{1,4}/g) || [enc];
+  const code = pfx + '-' + chunks.join('-');
+  const box = document.getElementById('resultCodeDisplay');
+  box.style.display = 'block';
+  box.innerHTML = '<div class="result-code-label">YOUR RESULT CODE</div>'
+    + '<div class="result-code" id="theCode">' + code + '</div>'
+    + '<div class="result-code-help">Copy this code and paste it back in chat</div>';
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  const range = document.createRange();
+  range.selectNodeContents(document.getElementById('theCode'));
+  sel.addRange(range);
+  const btn = document.querySelector('[onclick="encodeResults()"]');
+  if (btn) { btn.textContent = 'Code generated!'; btn.disabled = true; }
 }"""
     return h, js
 
@@ -1158,12 +1182,30 @@ def build_lesson(config, output_path=None, *, mode, course=None):
         section_html_out, section_js_out = rendered
 
         sections_parts.append(section_html_out)
+        if mode == "explainer":
+            sections_parts.append(
+                f'<div class="section-read-btn-wrap">'
+                f'<button class="section-read-btn" id="read_btn_{idx}" '
+                f'onclick="markSectionRead({idx})">&#10003; Got it</button>'
+                f'</div>'
+            )
         sections_parts.append('<div class="divider"></div>')
         if section_js_out and section_js_out not in script_seen:
             script_parts.append(section_js_out)
             script_seen.add(section_js_out)
         if section_type in MERMAID_COMPONENT_TYPES:
             use_mermaid = True
+
+    if mode == "explainer":
+        section_read_js = """const _readState = {};
+function markSectionRead(idx) {
+  if (_readState[idx]) return;
+  _readState[idx] = true;
+  const btn = document.getElementById('read_btn_' + idx);
+  if (btn) { btn.disabled = true; btn.classList.add('read'); btn.textContent = '\\u2713 Read'; }
+  addXp(5);
+}"""
+        script_parts.insert(0, section_read_js)
 
     module_scripts = build_mermaid_module_script() if use_mermaid else ""
 

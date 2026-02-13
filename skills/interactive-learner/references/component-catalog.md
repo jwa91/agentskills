@@ -12,6 +12,15 @@ Each session produces two HTML files:
 
 If `--mode` is set and a section uses a disallowed component type, `build-lesson.py` raises a clear error.
 
+### HTML vs Plain Text Fields
+
+Some fields are rendered as raw HTML (allowing `<code>`, `<strong>`, links, etc.), while others are escaped to plain text.
+
+- **HTML fields:** story-card `content`, side-by-side `items`, timeline `description`, vocab-cards detail fields (`definition`, `analogy`, `what`, `why`, `how`, `watch_out`), debug-challenge `bug_description`/`hint`/`correct_explanation`, real-world-mission/community-challenge body fields (`mission`, `context`, `followup`, `challenge`), custom `html`
+- **Plain text fields:** all `title` and `label` fields, quiz `question`/`options`/feedback, matching `term`/`definition`, fill-blanks `slots`/`choices`, sorting-game `items`, side-by-side `header`/`bullet`
+
+When using HTML fields, you can include inline HTML like `<code>ls -la</code>`, `<strong>important</strong>`, or `<a href="...">links</a>`.
+
 ---
 
 ## Core Components (click-based, scored — test phase)

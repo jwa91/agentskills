@@ -385,6 +385,54 @@ def set_curriculum(course, curriculum_json_path):
     print(json.dumps({"saved": True, "course": course, "sessions": len(sessions)}))
 
 
+def decode_result_code(code):
+    """Decode a compact result code back into session data."""
+    parts = code.strip().split('-')
+    if len(parts) < 2:
+        print(json.dumps({"error": "Invalid format"}))
+        return
+    course_prefix = parts[0]
+    encoded = ''.join(parts[1:])
+    # Split checksum (last 2 chars)
+    ck_str, encoded = encoded[-2:], encoded[:-2]
+    # Base36 decode
+    num = int(encoded, 36)
+    raw = []
+    while num > 0:
+        raw.insert(0, num & 0xFF)
+        num >>= 8
+    data = bytes(raw)
+    # Verify checksum
+    ck_actual = sum(data) % 1296
+    ck_expected = int(ck_str, 36)
+    if ck_actual != ck_expected:
+        print(json.dumps({"error": "Checksum mismatch"}))
+        return
+    # XOR deobfuscate
+    key = [0x7A, 0x3E, 0x9C, 0x51]
+    dec = bytearray(len(data))
+    for i in range(len(data)):
+        dec[i] = data[i] ^ key[i & 3]
+    # Unpack
+    session = dec[0]
+    score = dec[1]
+    max_score = dec[2]
+    xp = (dec[3] << 8) | dec[4]
+    results = []
+    for b in dec[5:]:
+        for bit in range(8):
+            results.append(1 if (b & (1 << bit)) else 0)
+    results = results[:max_score]
+    print(json.dumps({
+        "course_prefix": course_prefix,
+        "session": session,
+        "score": score,
+        "max_score": max_score,
+        "xp_earned": xp,
+        "per_question": results
+    }, indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Student progress tracker")
     sub = parser.add_subparsers(dest="cmd")
@@ -426,6 +474,9 @@ def main():
     p_curriculum.add_argument("course")
     p_curriculum.add_argument("curriculum_json", help="Path to curriculum JSON file")
 
+    p_decode = sub.add_parser("decode")
+    p_decode.add_argument("code")
+
     sub.add_parser("streak")
     sub.add_parser("xp")
 
@@ -452,6 +503,8 @@ def main():
         complete_mission(args.course, args.idx)
     elif args.cmd == "set-curriculum":
         set_curriculum(args.course, args.curriculum_json)
+    elif args.cmd == "decode":
+        decode_result_code(args.code)
     elif args.cmd == "streak":
         data = load()
         if data:

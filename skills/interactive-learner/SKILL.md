@@ -38,6 +38,8 @@ See [student-profiling.md](references/student-profiling.md) for the full profili
 Initialize progress:
 
 > All scripts use `uv run`. If `uv` is not available, use `python3` instead.
+>
+> **Path note:** `.agents/skills/` and `.claude/skills/` are symlinked — both paths reference the same location. Examples below use `.agents/`.
 
 ```bash
 uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <name>
@@ -70,6 +72,10 @@ uv run .agents/skills/interactive-learner/scripts/progress.py init <course> <nam
 3. Respected practitioners and educators (conference talks, well-known blogs)
 4. Community-vetted resources (highly-rated tutorials, curated awesome-lists)
 5. Interactive tools and sandboxes
+
+**Connecting research to lessons:**
+- Reference 1-2 sources inline in story-cards where relevant (e.g., "According to the Bash Reference Manual...")
+- End every explainer with a `recommended-deep-dive` section linking 2-4 of your best research sources
 
 #### 3. Design the curriculum
 
@@ -115,8 +121,13 @@ See [course-design-guide.md](references/course-design-guide.md) for topic-type �
 Build a lesson config using **only content components** (no scored exercises):
 
 - **MANDATORY: Before generating JSON for ANY component, read its schema in [component-catalog.md](references/component-catalog.md). Do NOT guess field names. Every component has different required fields — using wrong field names produces empty/broken output that silently fails.**
+- **MANDATORY: Search for videos before building the explainer:**
+  ```bash
+  uv run .agents/skills/interactive-learner/scripts/find-videos.py "topic for beginners"
+  ```
+  Embed 1-2 if good results exist. If nothing suitable, note this and move on. The search is required; embedding is not.
 - See [sharp-edges.md](references/sharp-edges.md) for anti-patterns to avoid
-- Mix component types — no two consecutive sections of the same type
+- Design the explanation first, then pick the best component for each piece
 - Include at least one moment of surprise, delight, or creative challenge per session
 - Keep JSON concise but rich: ~60-100 lines
 
@@ -124,7 +135,7 @@ Build a lesson config using **only content components** (no scored exercises):
 uv run .agents/skills/interactive-learner/scripts/build-lesson.py <explainer.json> --mode explainer --course <course-id> --open
 ```
 
-Tell the student: "Check the explainer I created for you. Let me know when you've finished reading."
+Tell the student what the explainer covers (1-2 sentences about concepts and ideas), invite questions, and let them know you're available to explain anything in more detail. Do NOT list component types in your message — describe what they'll *learn*, not what components you used.
 
 #### 5. Conversational checkpoint
 
@@ -148,19 +159,19 @@ Build a test config using **only scored components** + `score-summary`:
 uv run .agents/skills/interactive-learner/scripts/build-lesson.py <test.json> --mode test --course <course-id> --open
 ```
 
-Tell the student to complete the test and click "Save my results" when done.
+Tell the student to complete the test and click "Get my result code" when done.
 
 #### 7. Debrief after the session
 
 After the student completes the test:
 
-1. Student clicks "Save my results" — a JSON file downloads to `~/Downloads/<course>-session<N>-results.json`
-2. Student tells the agent they're done
-3. Agent reads the results JSON:
+1. Student clicks "Get my result code" — a compact code appears on screen (e.g. `BASH-7A3E-9C51-...`)
+2. Student copies the code and pastes it back in chat
+3. Agent decodes the result code:
    ```bash
-   cat ~/Downloads/<course>-session<N>-results.json
+   uv run .agents/skills/interactive-learner/scripts/progress.py decode <code>
    ```
-4. Update progress with scores AND concept mastery:
+4. Update progress with decoded scores AND concept mastery:
    ```bash
    uv run .agents/skills/interactive-learner/scripts/progress.py update <course> --session N --score S --max M --concepts '{"pod-basics": 0.9, "deployments": 0.6}'
    ```
@@ -292,7 +303,7 @@ Each session produces two JSON files: an **explainer** (content-only) and a **te
 
 ### Explainer phase (content-only, `--mode explainer`)
 
-`story-card` `vocab-cards` `side-by-side` `video-embed` `timeline` `concept-map` `mind-map` `kanban-board` `radar-profile` `recommended-deep-dive` `debug-challenge` `simulator` `real-world-mission` `community-challenge` `custom`
+`story-card` `vocab-cards` `side-by-side` `video-embed` `timeline` `concept-map` `mind-map` `kanban-board` `radar-profile` `recommended-deep-dive` *(include at end of every explainer)* `debug-challenge` `simulator` `real-world-mission` `community-challenge` `custom`
 
 ### Test phase (scored, `--mode test`)
 
@@ -327,7 +338,7 @@ Max 2 embedded videos per lesson. But you CAN recommend additional videos/resour
 5. **Conversational teach-back is powerful.** Use the checkpoint between explainer and test to ask 1 teach-back question, discuss confusion, and verify readiness. This replaces the old in-HTML open-answer textareas.
 6. **Max 6 new terms per session.** Each needs an analogy bridging to what the student knows.
 7. **50% practice, 30% content, 20% assessment** — but treat this as a guideline, not a straitjacket. Some sessions are exploration-heavy, some are drill-heavy.
-8. **Vary components.** No two consecutive sections should be the same type.
+8. **Design content first, then choose components.** Outline what you want to teach and how you'd explain it conversationally. Then map each piece to the best component. If three story-cards in a row is the clearest way to teach something, that's fine. Vary components when it serves comprehension, not for variety's sake.
 9. **Always end tests with score-summary.**
 10. **Be adventurous.** Send students to real websites, sandboxes, and tools. Recommend books, talks, and articles. Ask them to draw something and share it. Suggest they explain a concept to a friend. The lesson HTML is the core, but learning extends beyond it.
 11. **Achievements are dynamic.** Don't use a fixed list. Generate achievements that match the specific course, topic, and student milestones. See [gamification.md](references/gamification.md).

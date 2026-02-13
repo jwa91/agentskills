@@ -336,10 +336,13 @@ def main():
         import platform
         if platform.system() == "Darwin":
             subprocess.run(["open", out])
+            print("📊 Opened dashboard in browser")
         elif platform.system() == "Linux":
             subprocess.run(["xdg-open", out])
+            print("📊 Opened dashboard in browser")
         else:
             subprocess.run(["start", out], shell=True)
+            print("📊 Opened dashboard in browser")
 
 
 if __name__ == "__main__":
