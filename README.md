@@ -1,15 +1,15 @@
 # Agent Skills
 
-A personal collection of agent skills built by [@jwa91](https://github.com/jwa91).
+A personal collection of agent skills.
 
 Agent skills are portable instruction sets that give AI coding agents (Claude Code, OpenCode, Amp, etc.) specialized capabilities. Each skill lives in its own directory under `skills/` and can be installed into any project.
 
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
-| [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more |
-| [mac-cleanup](skills/mac-cleanup/) | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
+| Skill                                              | Description                                                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more             |
+| [mac-cleanup](skills/mac-cleanup/)                 | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
 
 ## Repository Layout
 
@@ -59,6 +59,7 @@ agentskills link --project /path/to/your-project --force
 ```
 
 Supported harnesses:
+
 - Anthropic (`.claude/skills`)
 - OpenCode (`.opencode/skills`)
 - Amp (`.amp/skills`)
