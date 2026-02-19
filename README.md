@@ -11,10 +11,23 @@ Agent skills are portable instruction sets that give AI coding agents (Claude Co
 | [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more             |
 | [mac-cleanup](skills/mac-cleanup/)                 | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
 
+### Curated
+
+Skills under `skills/curated/` are created by other authors. See each skill for original source and attribution.
+
+| Skill | Description | Source |
+| --- | --- | --- |
+| [brainstorming](skills/curated/brainstorming/) | Explore intent, requirements and design before creative work | [obra/superpowers](https://github.com/obra/superpowers) |
+| [clean-architecture](skills/curated/clean-architecture/) | Clean Architecture principles and best practices from Robert C. Martin | [pproenca/dot-skills](https://github.com/pproenca/dot-skills) |
+| [session-handoff](skills/curated/session-handoff/) | Comprehensive handoff documents for seamless AI agent session transfers | [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit) |
+| [test-driven-development](skills/curated/test-driven-development/) | TDD workflow — write tests before implementation code | [obra/superpowers](https://github.com/obra/superpowers) |
+| [writing-plans](skills/curated/writing-plans/) | Plan multi-step tasks from specs/requirements before touching code | [obra/superpowers](https://github.com/obra/superpowers) |
+
 ## Repository Layout
 
 ```
-skills/<skill-name>/          # Skill source directories (each contains SKILL.md)
+skills/<skill-name>/          # Own skill source directories (each contains SKILL.md)
+skills/curated/<skill-name>/  # Curated skills from other authors
 src/agentskills/              # CLI tooling (bootstrap, link, package, release)
 tests/                        # Tests for the CLI tooling
 docs/                         # Reference docs and research

@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from agentskills import resolve_skill_dir
 from agentskills.package import package_skill
 
 
@@ -53,9 +54,9 @@ def main() -> int:
     try:
         args = parse_args()
         repo_root = Path(args.repo_root).expanduser().resolve()
-        skill_dir = repo_root / "skills" / args.skill
-        if not skill_dir.exists():
-            raise RuntimeError(f"Skill path not found: {skill_dir}")
+        skill_dir = resolve_skill_dir(
+            repo_root / "skills", args.skill
+        )
 
         if not args.skip_validate:
             print(f"validate: {skill_dir}")

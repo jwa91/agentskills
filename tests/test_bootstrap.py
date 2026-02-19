@@ -63,6 +63,22 @@ class TestDiscoverAvailableSkills:
         skills = discover_available_skills(tmp_skill / "skills")
         assert skills == ["test-skill"]
 
+    def test_finds_curated_skills(self, tmp_skill_with_curated: Path):
+        skills = discover_available_skills(tmp_skill_with_curated / "skills")
+        assert "test-skill" in skills
+        assert "curated-skill" in skills
+        # own skills listed before curated
+        assert skills.index("test-skill") < skills.index("curated-skill")
+
+    def test_own_skill_shadows_curated(self, tmp_skill: Path):
+        # create a curated skill with the same name as an own skill
+        curated = tmp_skill / "skills" / "curated" / "test-skill"
+        curated.mkdir(parents=True)
+        content = "---\nname: test-skill\nversion: 0.1.0\n---\n"
+        (curated / "SKILL.md").write_text(content)
+        skills = discover_available_skills(tmp_skill / "skills")
+        assert skills.count("test-skill") == 1
+
     def test_ignores_dirs_without_skill_md(self, tmp_path: Path):
         skills_dir = tmp_path / "skills"
         (skills_dir / "not-a-skill").mkdir(parents=True)
@@ -135,6 +151,19 @@ class TestInstallSkill:
                 "copy",
                 force=False,
             )
+
+    def test_install_curated_skill(self, tmp_skill_with_curated: Path, tmp_path: Path):
+        dest = tmp_path / "dest"
+        dest.mkdir()
+        result = install_skill(
+            "curated-skill",
+            tmp_skill_with_curated / "skills",
+            dest,
+            "copy",
+            force=False,
+        )
+        assert result.exists()
+        assert (result / "SKILL.md").exists()
 
 
 class TestSymlinkWarning:

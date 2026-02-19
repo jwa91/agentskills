@@ -89,3 +89,11 @@ class TestPackageSkill:
         package_skill("test-skill", tmp_skill)
         archive, _, _ = package_skill("test-skill", tmp_skill, overwrite=True)
         assert archive.exists()
+
+    def test_packages_curated_skill(self, tmp_skill_with_curated: Path):
+        archive, name, version = package_skill(
+            "curated-skill", tmp_skill_with_curated
+        )
+        assert archive.exists()
+        assert name == "curated-skill"
+        assert version == "0.5.0"

@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from agentskills import resolve_skill_dir
+
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
 
 
@@ -77,10 +79,8 @@ def package_skill(
     overwrite: bool = False,
 ) -> tuple[Path, str, str]:
     """Package a skill and return (archive_path, name, version)."""
-    skill_dir = repo_root / "skills" / skill_name
+    skill_dir = resolve_skill_dir(repo_root / "skills", skill_name)
     skill_md = skill_dir / "SKILL.md"
-    if not skill_md.exists():
-        raise RuntimeError(f"Skill not found: {skill_md}")
 
     frontmatter_name, version = parse_frontmatter(skill_md)
     pkg_name = f"{frontmatter_name}-v{version}.skill"

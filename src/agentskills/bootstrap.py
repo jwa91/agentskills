@@ -9,6 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from agentskills import discover_all_skills, resolve_skill_dir
+
 DEFAULT_CACHE_DIR = Path.home() / ".cache" / "agentskills" / "repos"
 PROJECT_SKILLS_DIR = Path(".agents") / "skills"
 
@@ -80,14 +82,11 @@ def clone_or_update_repo(repo_url: str, ref: str, cache_dir: Path) -> Path:
 
 
 def discover_available_skills(skills_root: Path) -> list[str]:
-    """Return names of subdirectories containing a SKILL.md."""
-    if not skills_root.exists():
-        return []
-    return [
-        path.name
-        for path in sorted(skills_root.iterdir())
-        if path.is_dir() and (path / "SKILL.md").exists()
-    ]
+    """Return names of subdirectories containing a SKILL.md.
+
+    Searches both skills_root and skills_root/curated/.
+    """
+    return discover_all_skills(skills_root)
 
 
 def remove_path(path: Path) -> None:
@@ -106,9 +105,7 @@ def install_skill(
     force: bool,
 ) -> Path:
     """Copy or symlink a single skill into the destination."""
-    source_skill = source_root / skill_name
-    if not source_skill.exists():
-        raise RuntimeError(f"Skill not found in source repo: {source_skill}")
+    source_skill = resolve_skill_dir(source_root, skill_name)
 
     destination_skill = destination_root / skill_name
     if destination_skill.exists() or destination_skill.is_symlink():
