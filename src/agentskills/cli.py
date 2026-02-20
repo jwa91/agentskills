@@ -7,6 +7,7 @@ import sys
 
 COMMANDS = {
     "bootstrap": "Install skills into a project",
+    "list": "List available skills",
     "link": "Create harness symlinks for a project",
     "package": "Package a skill into a .skill archive",
     "release": "Validate and package a skill",
@@ -27,6 +28,8 @@ def main() -> int:
 
     if command == "bootstrap":
         from agentskills.bootstrap import main as cmd
+    elif command == "list":
+        from agentskills.list import main as cmd
     elif command == "link":
         from agentskills.link import main as cmd
     elif command == "package":

@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from agentskills import discover_all_skills, resolve_skill_dir
+from agentskills import REPO_ROOT, categorize_skills, discover_all_skills, resolve_skill_dir
 
 DEFAULT_CACHE_DIR = Path.home() / ".cache" / "agentskills" / "repos"
 PROJECT_SKILLS_DIR = Path(".agents") / "skills"
@@ -128,12 +128,22 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Bootstrap agent skills into a project.",
     )
-    parser.add_argument("--project", required=True, help="Target project path.")
+    parser.add_argument(
+        "--project",
+        default=".",
+        help="Target project path (default: current directory).",
+    )
     parser.add_argument(
         "--skill",
         action="append",
         default=[],
-        help="Skill name(s). Repeat or comma-separate. Default: all.",
+        help="Skill name(s). Repeat or comma-separate.",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="install_all",
+        help="Install all available skills without prompting.",
     )
     parser.add_argument(
         "--mode",
@@ -166,6 +176,38 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def pick_skills_interactive(skills_root: Path) -> list[str]:
+    """Show an interactive multi-select picker, or error if not a TTY."""
+    if not sys.stdin.isatty():
+        raise RuntimeError(
+            "No skills specified. Use --skill <name>, --all, or "
+            "`agentskills list` to see available skills."
+        )
+
+    from pick import pick as pick_menu
+
+    own, curated = categorize_skills(skills_root)
+    options = [name for name in own] + [f"{name} (curated)" for name in curated]
+
+    if not options:
+        raise RuntimeError(f"No skills found under: {skills_root}")
+
+    selected = pick_menu(
+        options,
+        title="Select skills to install (Space to toggle, Enter to confirm):",
+        multiselect=True,
+        min_selection_count=1,
+    )
+
+    names: list[str] = []
+    for label, _index in selected:
+        if label.endswith(" (curated)"):
+            names.append(label.removesuffix(" (curated)"))
+        else:
+            names.append(label)
+    return names
+
+
 def resolve_repo_root(args: argparse.Namespace) -> Path:
     """Determine the repo root from CLI arguments."""
     if args.repo_path and args.repo_url:
@@ -184,7 +226,7 @@ def resolve_repo_root(args: argparse.Namespace) -> Path:
             cache_dir=Path(args.cache_dir).expanduser().resolve(),
         )
 
-    return Path.cwd().resolve()
+    return REPO_ROOT
 
 
 def main() -> int:
@@ -199,7 +241,13 @@ def main() -> int:
             raise RuntimeError(f"No skills found under: {skills_root}")
 
         requested = parse_skill_list(args.skill)
-        selected = requested if requested else available
+        if requested:
+            selected = requested
+        elif args.install_all:
+            selected = available
+        else:
+            selected = pick_skills_interactive(skills_root)
+
         unknown = [name for name in selected if name not in available]
         if unknown:
             raise RuntimeError(

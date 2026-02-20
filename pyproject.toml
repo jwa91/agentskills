@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Personal collection of agent skills."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["pick"]
 
 [project.scripts]
 agentskills = "agentskills.cli:main"

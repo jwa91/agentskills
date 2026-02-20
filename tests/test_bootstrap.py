@@ -4,11 +4,14 @@ from pathlib import Path
 
 import pytest
 
+from unittest.mock import patch
+
 from agentskills.bootstrap import (
     discover_available_skills,
     install_skill,
     main,
     parse_skill_list,
+    pick_skills_interactive,
     repo_cache_name,
 )
 
@@ -210,3 +213,68 @@ class TestSymlinkWarning:
         assert result == 0
         captured = capsys.readouterr()
         assert "symlink" not in captured.err
+
+
+class TestProjectDefault:
+    def test_project_defaults_to_cwd(self, tmp_skill: Path, tmp_path: Path, capsys, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentskills",
+                "--skill",
+                "test-skill",
+                "--repo-path",
+                str(tmp_skill),
+            ],
+        )
+        result = main()
+        assert result == 0
+        assert (tmp_path / ".agents" / "skills" / "test-skill" / "SKILL.md").exists()
+
+
+class TestInstallAll:
+    def test_all_flag_installs_everything(
+        self, tmp_skill_with_curated: Path, tmp_path: Path, capsys, monkeypatch
+    ):
+        dest = tmp_path / "project"
+        dest.mkdir()
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentskills",
+                "--project",
+                str(dest),
+                "--all",
+                "--repo-path",
+                str(tmp_skill_with_curated),
+            ],
+        )
+        result = main()
+        assert result == 0
+        installed = dest / ".agents" / "skills"
+        assert (installed / "test-skill" / "SKILL.md").exists()
+        assert (installed / "curated-skill" / "SKILL.md").exists()
+
+
+class TestNonTTYError:
+    def test_no_skill_no_tty_errors(self, tmp_skill: Path, capsys, monkeypatch):
+        monkeypatch.setattr("sys.stdin", type("FakeTTY", (), {"isatty": lambda self: False})())
+        with pytest.raises(RuntimeError, match="No skills specified"):
+            pick_skills_interactive(tmp_skill / "skills")
+
+
+class TestPickerInteractive:
+    def test_picker_returns_selected_skills(self, tmp_skill_with_curated: Path, monkeypatch):
+        mock_result = [("test-skill", 0), ("curated-skill (curated)", 1)]
+        with patch("pick.pick", return_value=mock_result):
+            monkeypatch.setattr("sys.stdin", type("FakeTTY", (), {"isatty": lambda self: True})())
+            result = pick_skills_interactive(tmp_skill_with_curated / "skills")
+        assert result == ["test-skill", "curated-skill"]
+
+    def test_picker_strips_curated_suffix(self, tmp_skill_with_curated: Path, monkeypatch):
+        mock_result = [("curated-skill (curated)", 0)]
+        with patch("pick.pick", return_value=mock_result):
+            monkeypatch.setattr("sys.stdin", type("FakeTTY", (), {"isatty": lambda self: True})())
+            result = pick_skills_interactive(tmp_skill_with_curated / "skills")
+        assert result == ["curated-skill"]

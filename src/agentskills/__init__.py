@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 CURATED_DIR = "curated"
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def discover_all_skills(skills_root: Path) -> list[str]:
@@ -32,6 +33,33 @@ def discover_all_skills(skills_root: Path) -> list[str]:
         ]
 
     return own + curated
+
+
+def categorize_skills(skills_root: Path) -> tuple[list[str], list[str]]:
+    """Return (own, curated) skill name lists.
+
+    Own skills are directly under skills_root; curated are under
+    skills_root/curated/ and not shadowed by an own skill.
+    """
+    if not skills_root.exists():
+        return [], []
+
+    own = [
+        p.name
+        for p in sorted(skills_root.iterdir())
+        if p.is_dir() and p.name != CURATED_DIR and (p / "SKILL.md").exists()
+    ]
+
+    curated_root = skills_root / CURATED_DIR
+    curated: list[str] = []
+    if curated_root.is_dir():
+        curated = [
+            p.name
+            for p in sorted(curated_root.iterdir())
+            if p.is_dir() and (p / "SKILL.md").exists() and p.name not in own
+        ]
+
+    return own, curated
 
 
 def resolve_skill_dir(skills_root: Path, skill_name: str) -> Path:
