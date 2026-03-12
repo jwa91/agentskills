@@ -10,6 +10,8 @@ Agent skills are portable instruction sets that give AI coding agents (Claude Co
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more             |
 | [mac-cleanup](skills/mac-cleanup/)                 | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
+| [personal-commit-review](skills/personal-commit-review/) | Personal GitHub commit retrospective that collects commit activity and turns it into a prose review with stats and highlights |
+| [spec](skills/spec/)                               | Interview-driven spec writing — turns a vague idea into a buildable SPEC.md through structured questions                      |
 
 ### Curated
 

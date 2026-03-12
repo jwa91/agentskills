@@ -1,4 +1,4 @@
-This is a monorepo for agent skills built by jwa91. Each skill lives under `skills/<skill-name>/` and has its own `SKILL.md`, assets, scripts, and references.
+Personal collection of agentskills. Each skill lives under `skills/<skill-name>/` and has its own `SKILL.md`, assets, scripts, and references.
 
 Build/test
 
@@ -33,3 +33,4 @@ Currently included skills
 
 - `interactive-learner` — AI tutoring skill that creates interactive HTML courses. See `skills/interactive-learner/` for skill-specific architecture, scripts, and references.
 - `mac-cleanup` — Interactive macOS system cleanup that discovers installed tools and frees disk space. See `skills/mac-cleanup/`.
+- `spec` — Interview-driven spec writing that turns a vague idea into a buildable SPEC.md. See `skills/spec/`.
