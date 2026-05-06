@@ -9,8 +9,9 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 @dataclasses.dataclass(frozen=True)
@@ -107,7 +108,9 @@ def _run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
 
 
-def _compose_config_json(compose_path: Path) -> tuple[dict[str, Any] | None, str | None]:
+def _compose_config_json(
+    compose_path: Path,
+) -> tuple[dict[str, Any] | None, str | None]:
     cmd = [
         "docker",
         "compose",
@@ -196,7 +199,9 @@ def _try_load_toml(path: Path) -> dict[str, Any] | None:
         return None
 
 
-def _detect_runtime_hints(service_dir: Path, dockerfile_base_images: Iterable[ImageRef]) -> dict[str, str]:
+def _detect_runtime_hints(
+    service_dir: Path, dockerfile_base_images: Iterable[ImageRef]
+) -> dict[str, str]:
     """
     Prefer explicit "container runtime" signals from Dockerfiles, while retaining repo constraints.
 
@@ -219,7 +224,11 @@ def _detect_runtime_hints(service_dir: Path, dockerfile_base_images: Iterable[Im
 
     package_json = _try_load_json(service_dir / "package.json")
     if package_json:
-        engines = package_json.get("engines") if isinstance(package_json.get("engines"), dict) else None
+        engines = (
+            package_json.get("engines")
+            if isinstance(package_json.get("engines"), dict)
+            else None
+        )
         if engines and isinstance(engines.get("node"), str):
             hints["node_engine"] = engines["node"]
         pm = package_json.get("packageManager")
@@ -228,14 +237,24 @@ def _detect_runtime_hints(service_dir: Path, dockerfile_base_images: Iterable[Im
 
     pyproject = _try_load_toml(service_dir / "pyproject.toml")
     if pyproject:
-        project = pyproject.get("project") if isinstance(pyproject.get("project"), dict) else None
+        project = (
+            pyproject.get("project")
+            if isinstance(pyproject.get("project"), dict)
+            else None
+        )
         if project and isinstance(project.get("requires-python"), str):
             hints["python_requires"] = project["requires-python"]
 
-        tool = pyproject.get("tool") if isinstance(pyproject.get("tool"), dict) else None
+        tool = (
+            pyproject.get("tool") if isinstance(pyproject.get("tool"), dict) else None
+        )
         poetry = tool.get("poetry") if isinstance(tool, dict) else None
         if isinstance(poetry, dict):
-            deps = poetry.get("dependencies") if isinstance(poetry.get("dependencies"), dict) else None
+            deps = (
+                poetry.get("dependencies")
+                if isinstance(poetry.get("dependencies"), dict)
+                else None
+            )
             if deps and isinstance(deps.get("python"), str):
                 hints.setdefault("python_requires", deps["python"])
 
@@ -272,7 +291,9 @@ def _detect_dependency_hints(service_dir: Path) -> dict[str, Any]:
 
     if (service_dir / "package.json").exists():
         hints["nodeProject"] = True
-    if (service_dir / "pyproject.toml").exists() or (service_dir / "requirements.txt").exists():
+    if (service_dir / "pyproject.toml").exists() or (
+        service_dir / "requirements.txt"
+    ).exists():
         hints["pythonProject"] = True
 
     return hints
@@ -287,9 +308,10 @@ def _discover_update_check_skills(service_dir: Path, *, root: Path) -> list[str]
         if not child.is_dir():
             continue
         name = child.name.lower()
-        if "update-check" in name or name.endswith("-update") or "upgrade" in name:
-            if (child / "SKILL.md").exists():
-                matches.append(_relpath(child, root))
+        if (
+            "update-check" in name or name.endswith("-update") or "upgrade" in name
+        ) and (child / "SKILL.md").exists():
+            matches.append(_relpath(child, root))
     return matches
 
 
@@ -327,7 +349,9 @@ def _inventory_service(service_dir: Path, *, root: Path) -> ServiceInventory | N
         if isinstance(image_str, str) and image_str.strip():
             images[service_name] = _parse_image_ref(image_str.strip())
             if images[service_name].pinning in {"implicit-latest", "floating"}:
-                warnings.append(f"{service_name}: image tag is floating ({images[service_name].raw})")
+                warnings.append(
+                    f"{service_name}: image tag is floating ({images[service_name].raw})"
+                )
 
         build_cfg = cfg.get("build")
         if build_cfg is None:
@@ -351,7 +375,9 @@ def _inventory_service(service_dir: Path, *, root: Path) -> ServiceInventory | N
         base_images = _extract_base_images_from_dockerfile(df_path)
         dockerfile_bases.extend(_dedupe_images(base_images))
         if not base_images:
-            warnings.append(f"{service_name}: build Dockerfile has no parsable FROM lines ({df_path})")
+            warnings.append(
+                f"{service_name}: build Dockerfile has no parsable FROM lines ({df_path})"
+            )
         builds.append(
             BuildRef(
                 service=service_name,
@@ -406,7 +432,11 @@ def _render_markdown(inventories: list[ServiceInventory], generated_at: str) -> 
         if "python_container" in inv.runtime_hints:
             runtime_bits.append(f"python={inv.runtime_hints['python_container']}")
         runtimes = ", ".join(runtime_bits)
-        locks = ", ".join(inv.dependency_hints.get("lockfiles", [])) if isinstance(inv.dependency_hints.get("lockfiles"), list) else ""
+        locks = (
+            ", ".join(inv.dependency_hints.get("lockfiles", []))
+            if isinstance(inv.dependency_hints.get("lockfiles"), list)
+            else ""
+        )
         has_update_skill = "yes" if inv.update_check_skills else ""
         lines.append(
             "| "
@@ -434,7 +464,9 @@ def _render_markdown(inventories: list[ServiceInventory], generated_at: str) -> 
         lines.append(f"- Compose: `{inv.compose_path}`")
 
         if inv.compose_services:
-            lines.append(f"- Compose services: {', '.join(f'`{s}`' for s in inv.compose_services)}")
+            lines.append(
+                f"- Compose services: {', '.join(f'`{s}`' for s in inv.compose_services)}"
+            )
         if inv.runtime_hints:
             lines.append(
                 "- Runtime hints: "
@@ -442,7 +474,8 @@ def _render_markdown(inventories: list[ServiceInventory], generated_at: str) -> 
             )
         if inv.dependency_hints.get("lockfiles"):
             lines.append(
-                "- Lockfiles: " + ", ".join(f"`{lf}`" for lf in inv.dependency_hints["lockfiles"])
+                "- Lockfiles: "
+                + ", ".join(f"`{lf}`" for lf in inv.dependency_hints["lockfiles"])
             )
 
         if inv.images:
@@ -517,9 +550,15 @@ def _render_json(inventories: list[ServiceInventory], generated_at: str) -> str:
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Generate a dependency overview across all services in a Docker-compose monorepo.")
+    p = argparse.ArgumentParser(
+        description="Generate a dependency overview across all services in a Docker-compose monorepo."
+    )
     p.add_argument("--root", default=".", help="Workspace root (default: .)")
-    p.add_argument("--services-dir", default="services", help="Services directory (default: services)")
+    p.add_argument(
+        "--services-dir",
+        default="services",
+        help="Services directory (default: services)",
+    )
     p.add_argument("--format", default="markdown", choices=["markdown", "json"])
     p.add_argument("--output", help="Write output to a file instead of stdout")
     p.add_argument(
@@ -550,7 +589,7 @@ def main(argv: list[str]) -> int:
         if inv is not None:
             inventories.append(inv)
 
-    generated_at = dt.datetime.now(tz=dt.timezone.utc).isoformat()
+    generated_at = dt.datetime.now(tz=dt.UTC).isoformat()
     if args.format == "json":
         output = _render_json(inventories, generated_at)
     else:

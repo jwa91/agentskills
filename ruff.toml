@@ -51,12 +51,15 @@ convention = "google"
 "tests/**" = ["D"]
 "src/agentskills/cli.py" = ["PLC0415"]
 
-# Skill scripts use inline HTML/JS templates that produce unavoidable long lines.
-# Renderer functions are internal (dispatched via RENDERERS dict) and don't need docstrings.
-"skills/**/scripts/build-lesson.py" = ["E501", "D103", "PLC0415"]
-"skills/**/scripts/build-dashboard.py" = ["E501", "D103", "B905", "PLC0415"]
-"skills/**/scripts/find-videos.py" = ["E501", "D103", "SIM105"]
-"skills/**/scripts/progress.py" = ["E501", "D103"]
+# Skills target <500 LOC; narrative belongs in SKILL.md. Python stays dense but lint-light:
+# no module/class docstrings, long CLI/URL/report lines, lazy imports, zip(strict=) noise.
+"skills/**/*.py" = [
+    "D",
+    "E501",
+    "PLC0415",
+    "B905",
+    "SIM105",
+]
 
 [format]
 quote-style = "double"

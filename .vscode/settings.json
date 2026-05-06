@@ -1,0 +1,12 @@
+{
+  // Prefer repo ruff.toml over editor/user JSON settings (extension default is editorFirst).
+  "ruff.configurationPreference": "filesystemFirst",
+  "ruff.configuration": "${workspaceFolder}/ruff.toml",
+  // Match CLI / `ruff server` behavior instead of legacy ruff-lsp where possible.
+  "ruff.nativeServer": "on",
+  // Use the project's environment Ruff when present (uv dev deps), not only the bundled binary.
+  "ruff.importStrategy": "fromEnvironment",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  }
+}
