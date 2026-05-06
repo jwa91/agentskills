@@ -8,10 +8,13 @@ Agent skills are portable instruction sets that give AI coding agents (Claude Co
 
 | Skill                                              | Description                                                                                                                     |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| [env-inspector](skills/env-inspector/)             | Safely inspect `.env` files — keyword block + token-pattern blocklist + Shannon-entropy check + value allowlist, with a `PreToolUse` path-gate hook |
 | [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more             |
 | [mac-cleanup](skills/mac-cleanup/)                 | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
 | [personal-commit-review](skills/personal-commit-review/) | Personal GitHub commit retrospective that collects commit activity and turns it into a prose review with stats and highlights |
 | [spec](skills/spec/)                               | Interview-driven spec writing — turns a vague idea into a buildable SPEC.md through structured questions                      |
+| [vps-dependency-overview](skills/vps-dependency-overview/) | Offline-first dependency inventory across a Docker-compose monorepo — image pinning, base images, runtime hints, lockfiles. No network calls. |
+| [vps-service-status](skills/vps-service-status/)   | Read-only health checks for a Dockerized VPS over SSH — container status, disk/memory/CPU, with state-changing commands routed through the clipboard |
 
 ### Curated
 

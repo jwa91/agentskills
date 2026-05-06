@@ -1,9 +1,8 @@
 ---
 name: mac-cleanup
 description: "Interactive macOS system cleanup for any dev machine. Frees disk space by pruning caches, package managers, unused apps, stale dev artifacts, and more. Discovers what's installed rather than assuming a specific setup. Always consults the user before deleting anything. Use when the user asks to: clean up their Mac, free disk space, remove unused apps, prune caches, clean developer artifacts, or any disk space maintenance task."
-user_invocable: true
 metadata:
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # macOS Cleanup
