@@ -47,13 +47,13 @@ python3 .agents/skills/vps-dependency-overview/scripts/vps_dependency_overview.p
 
 ## Flags
 
-| Flag | Default | Description |
-|---|---|---|
-| `--root` | `.` | Workspace root |
-| `--services-dir` | `services` | Subdirectory containing per-service folders |
-| `--format` | `markdown` | `markdown` or `json` |
-| `--output` | stdout | Write to a file instead of stdout |
-| `--only NAME` | all | Restrict to specific service folder names (repeatable) |
+| Flag             | Default    | Description                                            |
+| ---------------- | ---------- | ------------------------------------------------------ |
+| `--root`         | `.`        | Workspace root                                         |
+| `--services-dir` | `services` | Subdirectory containing per-service folders            |
+| `--format`       | `markdown` | `markdown` or `json`                                   |
+| `--output`       | stdout     | Write to a file instead of stdout                      |
+| `--only NAME`    | all        | Restrict to specific service folder names (repeatable) |
 
 ## Expected layout
 
@@ -88,15 +88,15 @@ Replace `<vps-host>` with your SSH alias from `~/.ssh/config`.
 
 ## How to read the report
 
-| Pinning class | What it means | Reproducibility |
-|---|---|---|
-| `digest` | `image@sha256:…` | Best — content-addressed |
-| `semver` | `1.2.3`, `v1.2.3`, `1.2.3-alpine` | Good — explicit version |
-| `minor` | `1.2`, `1.2-alpine` | Major+minor pinned, patches float |
-| `major` | `22`, `3-slim` | Major pinned, minor+patch float on rebuild |
-| `floating` | `latest`, `main`, `master`, `edge`, `stable` | Bad — non-reproducible |
-| `implicit-latest` | no tag at all | Bad — equivalent to `:latest` |
-| `custom` | anything else | Worth a manual look |
+| Pinning class     | What it means                                | Reproducibility                            |
+| ----------------- | -------------------------------------------- | ------------------------------------------ |
+| `digest`          | `image@sha256:…`                             | Best — content-addressed                   |
+| `semver`          | `1.2.3`, `v1.2.3`, `1.2.3-alpine`            | Good — explicit version                    |
+| `minor`           | `1.2`, `1.2-alpine`                          | Major+minor pinned, patches float          |
+| `major`           | `22`, `3-slim`                               | Major pinned, minor+patch float on rebuild |
+| `floating`        | `latest`, `main`, `master`, `edge`, `stable` | Bad — non-reproducible                     |
+| `implicit-latest` | no tag at all                                | Bad — equivalent to `:latest`              |
+| `custom`          | anything else                                | Worth a manual look                        |
 
 Runtime fields:
 
