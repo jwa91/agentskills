@@ -68,6 +68,12 @@ For deeper walk-through of starting a new CLI from scratch, use the `scaffold-cl
 
 If a change touches the tap or any project that publishes to it, run `jwa-tobrew align` (or commit through `prek`, which runs it automatically) before considering the change done. See the `tap-alignment` skill.
 
+## CI notes for family lint
+
+- `jwa-tobrew lint` validates release/tag metadata. CI should fetch tags before running checks (`fetch-depth: 0` or explicit `git fetch --tags`) so version rules have full context.
+- GitHub Actions checkout uses an HTTPS `origin` by default; local policy still expects SSH for human environments. Handle this as CI context in lint logic rather than forcing remote rewrites in workflows.
+- For `govulncheck`, use a pinned tool version compatible with the repo's Go baseline and decide explicitly whether scan findings are advisory or blocking for that repo.
+
 ## Common errors
 
 - **`$GITHUB_TOKEN not set`** — wrap with `jwa-harden run --` (or fall back to `op run --env-file=.env.template --` directly).
