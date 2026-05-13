@@ -42,7 +42,7 @@ Each finding has one of two shapes:
 
 ## What is *not* enforced today (deliberately)
 
-- **`.env.template` content** — the file's existence is checked but the `op://` reference's value isn't. If the user moves to a different secret-handling model later (e.g. `jwa-harden run`), the env-template requirement may be dropped or replaced — don't promote it as eternal.
+- **`.env.template` content** — the file's existence is checked but the `op://` reference's value isn't. The runtime wrapper is now [`jwa-harden run`](https://github.com/jwa91/jwa-harden), which resolves the template before exec; `op run --env-file=` works as a manual fallback. Don't promote the `.env.template` file itself as eternal — the resolution path may evolve further.
 - **`.rb` schema** — desc, homepage, semver version, github source, filename↔name match. Queued for `doctor --strict` (TODO #2 in `TODO.md`).
 - **`tap.toml` JSON-schema validation** — Queued for TODO #4.
 - **Sha verification of every committed `.rb` against its GitHub release** — Queued for TODO #1, will run as a daily CI cron.

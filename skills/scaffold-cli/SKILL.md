@@ -37,8 +37,8 @@ jwa-tobrew init
 
 `init` auto-detects Go (because of `go.mod`) and writes:
 
-- **`.goreleaser.yaml`** — the entire release pipeline. Builds darwin/linux × amd64/arm64, creates the GitHub Release, writes `Formula/<name>.rb` to the tap via the `brews:` block. Same config runs locally and in CI.
-- **`.env.template`** — `op://` references for `$GITHUB_TOKEN` (current bridge until `jwa-harden` lands; see security note in the `jwa-tobrew` skill).
+- **`.goreleaser.yaml`** — the entire release pipeline. Builds darwin/linux × amd64/arm64, creates the GitHub Release, writes `Casks/<name>.rb` to the tap via the modern `homebrew_casks:` block (ADR 0008 in homebrew-tap). Same config runs locally and in CI.
+- **`.env.template`** — `op://` references for `$GITHUB_TOKEN` (resolved at runtime by [`jwa-harden`](https://github.com/jwa91/jwa-harden); see security note in the `jwa-tobrew` skill).
 - **`.gitignore`** entries that block raw `.env` files (per ADR 0005).
 - **`.agents/skills/release/SKILL.md`** + `.claude/skills/release` symlink — a project-level release skill so future agents know how this project ships.
 

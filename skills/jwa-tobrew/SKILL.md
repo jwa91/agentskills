@@ -5,7 +5,7 @@ description: Use the `jwa-tobrew` CLI to publish a project to the user's persona
 
 # jwa-tobrew — publish a project to the personal Homebrew tap
 
-`jwa-tobrew` is the CLI that owns the tap repo at <https://github.com/jwa91/homebrew-tap>. It publishes Go binaries (via GoReleaser), macOS apps (Casks), and other binaries (Formulae). It is one of the planned `jwa-*` family (`jwa-harden`, `jwa-vps`).
+`jwa-tobrew` is the CLI that publishes to the tap repo at <https://github.com/jwa91/homebrew-tap>. Its own source lives at <https://github.com/jwa91/jwa-tobrew> (extracted from the tap per ADR 0008). It publishes Go binaries (via GoReleaser), macOS apps (Casks), and other binaries (Formulae). It is one of the `jwa-*` family — siblings today: [`jwa-harden`](https://github.com/jwa91/jwa-harden) (op-run wrapper); planned: `jwa-vps`.
 
 ## Command surface
 
@@ -27,7 +27,7 @@ jwa-tobrew upgrade              Re-install via brew
 
 `jwa-tobrew` **never touches secret storage directly**. It reads `$GITHUB_TOKEN` from its environment for any command that hits the GitHub API (`release`, `bump`); commands that don't (`add`, `align`, `doctor`, etc.) need no token. Pushes to the tap go over SSH, never HTTPS-with-token (per ADR 0002).
 
-Today the env is supplied by `op run --env-file=.env.template -- jwa-tobrew <cmd>` — the `.env.template` holds `op://` references that are resolved into the child process for the duration of the command. **This is the current bridge, not the eternal pattern**: when `jwa-harden` exists, the canonical wrapper becomes `jwa-harden run -- jwa-tobrew <cmd>`. Don't promote `.env.template` as a permanent contract.
+The canonical wrapper is `jwa-harden run -- jwa-tobrew <cmd>` ([`jwa-harden`](https://github.com/jwa91/jwa-harden) walks up from `$PWD` to find the nearest `.env.template` and execs `op run --env-file=<found> -- <cmd>`). `op run --env-file=.env.template -- jwa-tobrew <cmd>` works the same way but requires you to be at the repo root and to know the path; prefer the wrapper. The `.env.template` itself holds `op://` references that are resolved into the child process for the duration of the command; never check in a real `.env`.
 
 The full security model lives at `~/dotfiles/docs/security-ground-rules.md` and the ADRs at `docs/adr/`. Read those before suggesting any token-handling change.
 
@@ -66,7 +66,7 @@ If a change touches the tap or any project that publishes to it, run `jwa-tobrew
 
 ## Common errors
 
-- **`$GITHUB_TOKEN not set`** — wrap with `op run --env-file=.env.template --` (or `jwa-harden run --` once it exists).
+- **`$GITHUB_TOKEN not set`** — wrap with `jwa-harden run --` (or fall back to `op run --env-file=.env.template --` directly).
 - **`tap origin is HTTPS but jwa-tobrew pushes over SSH only`** — `git -C ~/developer/homebrew-tap remote set-url origin git@github.com:OWNER/REPO.git`.
 - **`X.rb has N url lines (multi-platform); jwa-tobrew can't safely bump it`** — this is a source-repo-managed item; release it from its own repo via `goreleaser release`, not from here.
 - **`could not locate homebrew-tap clone`** — `export BREWTAP_DIR=/path/to/homebrew-tap`.
