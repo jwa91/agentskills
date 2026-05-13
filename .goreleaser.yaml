@@ -34,6 +34,11 @@ builds:
       - -X main.version={{.Version}}
       - -X main.commit={{.ShortCommit}}
       - -X main.date={{.Date}}
+    hooks:
+      # Codesign darwin binaries with Developer ID + hardened runtime.
+      # No-op on linux and when MACOS_SIGN_IDENTITY is unset (CI).
+      post:
+        - cmd: 'scripts/codesign.sh "{{ .Target }}" "{{ .Path }}"'
 
 archives:
   - id: default
@@ -69,16 +74,11 @@ changelog:
     - title: Other
       order: 999
 
-# Write Formula/agentskills.rb into jwa91/homebrew-tap. The token resolution
-# matches prehandover: use HOMEBREW_TAP_GITHUB_TOKEN provided by jwa-harden
-# (or `op run` during bootstrap). GoReleaser commits and pushes the formula
-# directly to the tap repo.
-#
-# GoReleaser deprecated `brews` in v2.10 in favor of `homebrew_casks`. This
-# project still uses a Formula because agentskills is a CLI and `brew install`
-# is the expected Homebrew UX for command-line tools. Same call as prehandover
-# — do not "fix" the deprecation warning by switching to homebrew_casks.
-brews:
+# Modern Homebrew distribution for pre-compiled binaries (ADR 0008 in
+# jwa91/homebrew-tap). Publishes Casks/agentskills.rb back to the tap.
+# `brew install jwa91/tap/agentskills` is unchanged — modern brew
+# auto-detects the cask kind.
+homebrew_casks:
   - name: agentskills
     ids:
       - default
@@ -87,17 +87,17 @@ brews:
       name: homebrew-tap
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    directory: Formula
-    skip_upload: auto
+    directory: Casks
     homepage: https://github.com/jwa91/agentskills
     description: Install and manage agent skills inside a project
     license: MIT
+    binaries: [agentskills]
     dependencies:
-      - name: git
-    install: |
-      bin.install "agentskills"
-    test: |
-      assert_match version.to_s, shell_output("#{bin}/agentskills --version")
+      - formula: git
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "feat(agentskills): cask update to {{ .Tag }}"
 
 release:
   github:
