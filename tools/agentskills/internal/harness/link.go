@@ -9,11 +9,11 @@ import (
 
 // LinkResult describes the outcome of a single harness link attempt.
 type LinkResult struct {
-	Name       string
-	LinkPath   string
-	Target     string // relative target from link's parent dir
-	Action     string // "linked", "skip", "plan"
-	Message    string
+	Name     string
+	LinkPath string
+	Target   string // relative target from link's parent dir
+	Action   string // "linked", "skip", "plan"
+	Message  string
 }
 
 // LinkOptions controls the Link function.

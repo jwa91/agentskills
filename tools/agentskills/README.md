@@ -26,15 +26,16 @@ make test            # full suite with coverage
 
 ## Release
 
-Releases are driven by `.goreleaser.yaml` at the repo root and the tag scheme `cli/vX.Y.Z`. Per-skill tags (`<skill>/vX.Y.Z`) are ignored by goreleaser via `git.ignore_tags`.
+Releases are driven by `.goreleaser.yaml` at the repo root and the tag scheme `vX.Y.Z`. Per-skill tags (`<skill>/vX.Y.Z`) are ignored by goreleaser via `git.ignore_tags`.
+
+Releases are tag-driven via GitHub Actions (`.github/workflows/release.yml`). Cut one by tagging from `main`:
 
 ```bash
-git tag -a cli/v0.1.0 -m "cli v0.1.0"
-git push origin cli/v0.1.0
-goreleaser release --clean
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin v0.1.0
 ```
 
-The formula is written directly into `jwa91/homebrew-tap/Formula/agentskills.rb` (same mechanism as `prehandover`).
+The workflow runs `make check`, then `goreleaser release --clean`, then a smoke test against the published Linux x86_64 archive. The formula is written directly into `jwa91/homebrew-tap/Formula/agentskills.rb` (same mechanism as `prehandover`).
 
 ## Why a Go port?
 

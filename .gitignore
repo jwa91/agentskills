@@ -73,6 +73,9 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
+# Go build artifacts
+bin/
+
 # Project specific
 .learner-progress.json
 secrets.toml

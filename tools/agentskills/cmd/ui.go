@@ -6,13 +6,12 @@ import (
 )
 
 const (
-	cReset  = "\033[0m"
-	cBold   = "\033[1m"
-	cRed    = "\033[31m"
-	cGreen  = "\033[32m"
-	cYellow = "\033[33m"
-	cBlue   = "\033[34m"
-	cGray   = "\033[90m"
+	cReset = "\033[0m"
+	cBold  = "\033[1m"
+	cRed   = "\033[31m"
+	cGreen = "\033[32m"
+	cBlue  = "\033[34m"
+	cGray  = "\033[90m"
 )
 
 func useColor() bool {
@@ -35,9 +34,6 @@ func info(format string, a ...any) {
 }
 func ok(format string, a ...any) {
 	fmt.Fprintln(os.Stderr, paint(cGreen, "✓"), fmt.Sprintf(format, a...))
-}
-func warn(format string, a ...any) {
-	fmt.Fprintln(os.Stderr, paint(cYellow, "!"), fmt.Sprintf(format, a...))
 }
 func fail(format string, a ...any) {
 	fmt.Fprintln(os.Stderr, paint(cRed, "✗"), fmt.Sprintf(format, a...))

@@ -2,15 +2,13 @@ version: 2
 
 project_name: agentskills
 
-# Tag scheme: `cli/vX.Y.Z` for binary releases; per-skill tags
+# Tag scheme: plain `vX.Y.Z` for binary releases; per-skill tags
 # (`<skill>/vX.Y.Z`) must never trigger a binary release.
 #
 # OSS goreleaser does not include the `monorepo` block (Pro-only), so we
-# use `git.ignore_tags` to keep skill tags out of the version detection
-# and rely on the operator pushing `cli/v*` tags. Goreleaser strips the
-# `cli/` prefix when forming `{{ .Version }}` because the `name_template`
-# in release/brews uses semver fields derived from the tag's trailing
-# `vX.Y.Z`.
+# use `git.ignore_tags` to filter the per-skill `<skill>/vX.Y.Z` tags out
+# of version detection. Binary releases are driven by plain `v*` tags on
+# the repo root, matching the prehandover pattern.
 git:
   ignore_tags:
     - "*/v*"

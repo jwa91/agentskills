@@ -88,7 +88,7 @@ agentskills/
 
 - Cache dir: `~/.cache/agentskills/repos/` (unchanged from Python).
 - Default repo URL: `https://github.com/jwa91/agentskills.git`. Default ref: `main`. Override with `--repo-url --ref` or env `AGENTSKILLS_REPO` / `AGENTSKILLS_REF`.
-- Release tags: `cli/vX.Y.Z` for the binary; per-skill tags stay `<skill>/vX.Y.Z`. No collision.
+- Release tags: `vX.Y.Z` for the binary; per-skill tags stay `<skill>/vX.Y.Z`. No collision.
 
 ## Migration order
 
@@ -97,12 +97,15 @@ agentskills/
 3. Port `list` (reuses skillrepo).
 4. Port `link` (embed `harness_adapters.json`).
 5. Add `doctor`.
-6. Goreleaser config + first `cli/v0.1.0` tag → formula lands in the tap.
+6. Goreleaser config + first `v0.1.0` tag → formula lands in the tap.
 7. Migrate tap-related skills into `skills/`: `jwa-tobrew`, `scaffold-cli`, `tap-alignment`, `tap-scaffolding`.
 8. Update the tap repo's bootstrap to call `agentskills bootstrap --skill jwa-tobrew --skill tap-alignment …` instead of vendoring the skills inline. Tap's `.agents/skills/` becomes generated-and-gitignored.
+
+## Decisions
+
+- **Tag scheme: plain `vX.Y.Z` on the repo root for the binary; per-skill tags stay `<skill>/vX.Y.Z`.** Rationale: goreleaser OSS doesn't parse prefixed tags natively; plain `vX.Y.Z` matches the prehandover pattern and avoids two-tags-per-release workarounds. Per-skill tags are filtered out of binary-release version detection via `git.ignore_tags`.
 
 ## Open questions
 
 - Keep the Python package on PyPI for `package`/`release`, or fold those into Go later? Recommend: keep Python until a skill author hits real friction.
 - `link` default: should `bootstrap` auto-link to the harness Claude detects? Recommend: **no.** Auto-linking is invisible state and violates context-bloat rule #2.
-- Tag scheme: `cli/vX.Y.Z` vs plain `vX.Y.Z` on the repo root. Recommend `cli/`-prefixed so per-skill tags stay clean.

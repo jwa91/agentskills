@@ -1,4 +1,4 @@
-.PHONY: build install test lint clean tidy
+.PHONY: build install test lint vet check clean tidy
 
 BIN_DIR ?= $(HOME)/.local/bin
 PKG     := ./tools/agentskills
@@ -22,6 +22,14 @@ lint:
 		echo "golangci-lint not installed; running go vet instead"; \
 		go vet ./...; \
 	fi
+
+vet:
+	go vet ./...
+
+# Local verification suite mirrored by .github/workflows/ci.yml. Trimmed
+# vs. prehandover: no staticcheck/govulncheck because agentskills has zero
+# third-party Go dependencies.
+check: vet lint build test
 
 tidy:
 	go mod tidy
