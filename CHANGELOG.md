@@ -9,9 +9,24 @@ follow [SemVer](https://semver.org).
 
 ### Fixed
 
+- Made no-argument `agentskills` behave like help and exit successfully.
+- Added the missing MIT license file and completed the `.env` ignore block so
+  `.env.template` can be tracked.
+
+### Changed
+
+- Standardized GoReleaser archive naming to
+  `{project}_{version}_{os}_{arch}` for family consistency.
+
+## [0.1.3] — 2026-05-13
+
+### Fixed
+
 - Enforced notarization inside the GoReleaser build hook so releases cut via
   raw `goreleaser release --clean` are notarized (not only releases run via
   `make release`).
+
+## [0.1.2] — 2026-05-13
 
 ### Changed
 
@@ -19,8 +34,6 @@ follow [SemVer](https://semver.org).
   or `scripts/release.sh` and routes releases through `jwa-harden`.
 - Refreshed tap-related docs and skills to refer to `Casks/*.rb` and
   GoReleaser `homebrew_casks` for Go CLI distribution.
-- Standardized GoReleaser archive naming to
-  `{project}_{version}_{os}_{arch}` for family consistency.
 
 ## [0.1.1] — 2026-05-13
 
@@ -48,17 +61,16 @@ follow [SemVer](https://semver.org).
 - **Makefile `release` target** added (didn't exist — local release
   was not part of the previous flow). Same shape as the sibling
   `jwa-*` CLIs.
-
-### Notes
-
-- Skill content under `skills/` is unaffected by this change. The
-  `agentskills bootstrap` mechanism for materializing skills into
-  consuming repos works identically — the binary is what got signed.
+- **Skill materialization remains unchanged** — `agentskills bootstrap`
+  still installs skill content from `skills/`; the release change only
+  affects the signed CLI binary artifact.
 
 ## [0.1.0] — earlier
 
 Initial release. See git history.
 
-[Unreleased]: https://github.com/jwa91/agentskills/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/jwa91/agentskills/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/jwa91/agentskills/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/jwa91/agentskills/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/jwa91/agentskills/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/jwa91/agentskills/releases/tag/v0.1.0

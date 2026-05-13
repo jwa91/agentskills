@@ -28,14 +28,14 @@ make test            # full suite with coverage
 
 Releases are driven by `.goreleaser.yaml` at the repo root and the tag scheme `vX.Y.Z`. Per-skill tags (`<skill>/vX.Y.Z`) are ignored by goreleaser via `git.ignore_tags`.
 
-Releases are tag-driven via GitHub Actions (`.github/workflows/release.yml`). Cut one by tagging from `main`:
+Releases are local and signed for now; `.github/workflows/release.yml` is manual-only until CI has signing credentials. Cut one by tagging `HEAD` from `main`, then running the release target:
 
 ```bash
 git tag -a v0.1.0 -m "v0.1.0"
-git push origin v0.1.0
+make release VERSION=0.1.0
 ```
 
-The workflow runs `make check`, then `goreleaser release --clean`, then a smoke test against the published Linux amd64 archive. The cask is written directly into `jwa91/homebrew-tap/Casks/agentskills.rb` via GoReleaser `homebrew_casks`.
+The release target verifies prerequisites, then runs GoReleaser through `jwa-harden`. The cask is written directly into `jwa91/homebrew-tap/Casks/agentskills.rb` via GoReleaser `homebrew_casks`.
 
 ## Why a Go port?
 
