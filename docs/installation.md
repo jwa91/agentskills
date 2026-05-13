@@ -26,6 +26,23 @@ brew uninstall --cask agentskills
 
 ## Direct Download
 
+Use the installer script (recommended):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jwa91/agentskills/main/scripts/install.sh | sh
+agentskills version
+```
+
+Optional env overrides:
+
+```sh
+AGENTSKILLS_VERSION=0.1.4 \
+AGENTSKILLS_INSTALL_DIR="$HOME/.local/bin" \
+  curl -fsSL https://raw.githubusercontent.com/jwa91/agentskills/main/scripts/install.sh | sh
+```
+
+Manual archive install:
+
 Download the archive for your platform from the [latest release](https://github.com/jwa91/agentskills/releases/latest). Asset names use this shape:
 
 - `agentskills_<version>_darwin_arm64.tar.gz`
@@ -36,7 +53,7 @@ Download the archive for your platform from the [latest release](https://github.
 Verify and extract:
 
 ```sh
-version=0.1.3
+version=0.1.4
 asset=agentskills_${version}_linux_amd64.tar.gz
 curl -fsSLO "https://github.com/jwa91/agentskills/releases/download/v${version}/${asset}"
 curl -fsSLO "https://github.com/jwa91/agentskills/releases/download/v${version}/checksums.txt"
@@ -58,7 +75,7 @@ agentskills version
 For a pinned install:
 
 ```sh
-go install github.com/jwa91/agentskills/tools/agentskills@v0.1.3
+go install github.com/jwa91/agentskills/tools/agentskills@v0.1.4
 ```
 
 The Go install path builds from the module tag instead of downloading the
