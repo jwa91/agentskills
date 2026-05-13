@@ -5,7 +5,7 @@ description: Set up a new Go CLI installable via the personal Homebrew tap. Trig
 
 # Scaffold a new Go CLI publishable via the tap
 
-Goal: end up with a Go CLI whose `goreleaser release` builds cross-platform binaries, creates a GitHub Release with notes, and writes `Formula/<name>.rb` directly to <https://github.com/jwa91/homebrew-tap>. After the first release, `brew install jwa91/tap/<name>` works from any machine.
+Goal: end up with a Go CLI whose `goreleaser release` builds cross-platform binaries, creates a GitHub Release with notes, and writes `Casks/<name>.rb` directly to <https://github.com/jwa91/homebrew-tap>. After the first release, `brew install jwa91/tap/<name>` works from any machine.
 
 ## Preconditions
 
@@ -40,9 +40,9 @@ jwa-tobrew init
 - **`.goreleaser.yaml`** — the entire release pipeline. Builds darwin/linux × amd64/arm64, creates the GitHub Release, writes `Casks/<name>.rb` to the tap via the modern `homebrew_casks:` block (ADR 0008 in homebrew-tap). Same config runs locally and in CI.
 - **`.env.template`** — `op://` references for `$GITHUB_TOKEN` (resolved at runtime by [`jwa-harden`](https://github.com/jwa91/jwa-harden); see security note in the `jwa-tobrew` skill).
 - **`.gitignore`** entries that block raw `.env` files (per ADR 0005).
-- **`.agents/skills/release/SKILL.md`** + `.claude/skills/release` symlink — a project-level release skill so future agents know how this project ships.
+- **`.agents/skills/release/SKILL.md`** plus harness symlinks — installed by `agentskills bootstrap --skill release` so future agents know how this project ships.
 
-Useful flags: `--name <name>` (defaults to repo name), `--desc "..."` (used in the Formula's `desc` line), `--force` (overwrite existing files).
+Useful flags: `--name <name>` (defaults to repo name), `--desc "..."` (used in the Cask's `desc` line), `--force` (overwrite existing files).
 
 ## Step 3 — wire the Go CLI for `--version`
 
@@ -64,14 +64,14 @@ func main() {
 }
 ```
 
-The Formula's auto-generated `test` block runs `<name> --version` and asserts the version string matches; without these vars the test fails on `brew install`.
+The generated release pipeline expects `<name> --version` to work so local and post-install smoke checks can verify the binary that was built.
 
 ## Step 4 — first release (local)
 
 ```bash
 git tag -a v0.1.0 -m v0.1.0
 git push origin v0.1.0
-op run --env-file=.env.template -- goreleaser release --clean
+jwa-harden run -- goreleaser release --clean
 ```
 
 GoReleaser will:
@@ -80,9 +80,9 @@ GoReleaser will:
 2. Build the cross-platform binaries
 3. Create the `v0.1.0` GitHub Release with auto-grouped changelog (Conventional Commits → "Features" / "Bug fixes" / "Other")
 4. Upload archives + `checksums.txt`
-5. Author a commit on `homebrew-tap/main` adding `Formula/<name>.rb` with all four `url`+`sha256` pairs
+5. Author a commit on `homebrew-tap/main` adding `Casks/<name>.rb` with platform-specific `url`+`sha256` entries
 
-After it lands, `cd ~/developer/homebrew-tap && git pull` brings the new Formula in. The README items table updates next time anyone runs `jwa-tobrew config` (or auto-updates on the next `add`/`bump`/`release`).
+After it lands, `cd ~/developer/homebrew-tap && git pull` brings the new Cask in. The README items table updates next time anyone runs `jwa-tobrew config` (or auto-updates on the next `add`/`bump`/`release`).
 
 ## Step 5 — first release (CI alternative)
 
@@ -109,7 +109,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 ```
 
-`HOMEBREW_TAP_TOKEN` is a fine-grained PAT with **write** access to `jwa91/homebrew-tap` and **contents:write** on this repo. Local releases use `op run`, CI uses repo secrets — same `goreleaser release` invocation either way.
+`HOMEBREW_TAP_TOKEN` is a fine-grained PAT with **write** access to `jwa91/homebrew-tap` and **contents:write** on this repo. Local releases use `jwa-harden run --`, CI uses repo secrets — same `goreleaser release` invocation either way.
 
 ## Step 6 — subsequent releases
 

@@ -20,7 +20,6 @@ tools/jwa-tobrew/
     ├── cask.rb.tmpl           cask .rb shape (used by writeNewTapFile in release.go)
     ├── formula.rb.tmpl        formula .rb shape (single-asset; multi-platform formulas
                                come from source-repo GoReleaser, not from here)
-    └── skill-release.md.tmpl  per-project release skill written by writeAuxiliary
 ```
 
 Templates use Go's `text/template` syntax with double braces. To emit a literal `{{ ... }}` (e.g. for GoReleaser's own template variables in `goreleaser.yaml.tmpl`), wrap it: `{{`{{ .Version }}`}}`.
@@ -29,10 +28,10 @@ Templates use Go's `text/template` syntax with double braces. To emit a literal 
 
 Only two functions write template-rendered files to disk:
 
-1. **`init.go::writeTemplate(path, tmpl, data, force)`** — renders a template and writes. Refuses to overwrite unless `force=true`. Used by `scaffold` and `writeAuxiliary` to drop scaffolded files into target projects.
+1. **`init.go::writeTemplate(path, tmpl, data, force)`** — renders a template and writes. Refuses to overwrite unless `force=true`. Used by `scaffold` for release config files.
 2. **`release.go::writeNewTapFile`** — renders `cask.rb.tmpl` or `formula.rb.tmpl` and writes a brand-new tap entry. Always passes `force=true` because the file shouldn't have existed yet (`add` checks; `release` checks).
 
-`scaffold` itself does kind dispatch:
+`scaffold` itself does kind dispatch, then installs the generic release skill through `agentskills`:
 
 ```go
 switch kind {
@@ -42,7 +41,7 @@ case "cask", "formula":
     writeTemplate("scripts/release.sh", releaseShTmpl, data, force)
     chmod 0o755
 }
-writeAuxiliary(dir, data, force)  // .env.template, .gitignore, project skill
+writeAuxiliary(dir, force)  // .env.template, .gitignore, agentskills bootstrap/link
 ```
 
 ## Adding a new scaffold kind

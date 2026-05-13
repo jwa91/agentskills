@@ -7,6 +7,13 @@ follow [SemVer](https://semver.org).
 
 ## [Unreleased]
 
+### Changed
+
+- Added a generic `release` skill that detects repo-local `.goreleaser.yaml`
+  or `scripts/release.sh` and routes releases through `jwa-harden`.
+- Refreshed tap-related docs and skills to refer to `Casks/*.rb` and
+  GoReleaser `homebrew_casks` for Go CLI distribution.
+
 ## [0.1.1] — 2026-05-13
 
 ### Changed

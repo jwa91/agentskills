@@ -13,6 +13,7 @@ Agent skills are portable instruction sets that give AI coding agents (Claude Co
 | [interactive-learner](skills/interactive-learner/) | AI tutoring skill that creates rich, interactive HTML courses with quizzes, simulators, spaced repetition, and more             |
 | [mac-cleanup](skills/mac-cleanup/)                 | Interactive macOS system cleanup that discovers installed tools and frees disk space by pruning caches, dev artifacts, and more |
 | [personal-commit-review](skills/personal-commit-review/) | Personal GitHub commit retrospective that collects commit activity and turns it into a prose review with stats and highlights |
+| [release](skills/release/)                         | Release the current project to `jwa91/tap` from repo-local `.goreleaser.yaml` or `scripts/release.sh` config |
 | [spec](skills/spec/)                               | Interview-driven spec writing — turns a vague idea into a buildable SPEC.md through structured questions                      |
 | [stackpicker](skills/stackpicker/)                 | Pick a stack (languages, Docker yes/no, tools) for a new project. Applies the Agent-Era Codebase Principles, reads per-language tool defaults from the Obsidian vault, outputs a structured choice/for/why report |
 | [vps-dependency-overview](skills/vps-dependency-overview/) | Offline-first dependency inventory across a Docker-compose monorepo — image pinning, base images, runtime hints, lockfiles. No network calls. |
@@ -44,7 +45,7 @@ docs/                         # Reference docs and research
 
 ## Getting Started
 
-Install the `agentskills` CLI via the user's personal Homebrew tap (once `v0.1.0` has been published):
+Install the `agentskills` CLI via the user's personal Homebrew tap:
 
 ```bash
 brew install jwa91/tap/agentskills
@@ -119,7 +120,7 @@ For Go CLI development, `make check` at the repo root runs the local verificatio
 
 CLI binary releases use plain `vX.Y.Z` tags on the repo root. Per-skill release tags follow the pattern `<skill-name>/v<version>`; each skill declares its own version in `SKILL.md` under `metadata.version` (semver: `X.Y.Z`).
 
-Releases are tag-driven via GitHub Actions: push a `vX.Y.Z` tag from `main`, and `.github/workflows/release.yml` runs `make check`, then goreleaser (which writes `Formula/agentskills.rb` into `jwa91/homebrew-tap`), then a smoke test against the published artifact.
+Releases are tag-driven via GitHub Actions or a local signed release: push a `vX.Y.Z` tag from `main`, and the release flow runs `make check`, then GoReleaser, which writes `Casks/agentskills.rb` into `jwa91/homebrew-tap`.
 
 ## External References
 

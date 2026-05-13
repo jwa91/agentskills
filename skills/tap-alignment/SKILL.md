@@ -19,8 +19,8 @@ A new convention should be added to all three: ADR (why) → align rule (what) �
 
 `align` looks at the cwd and picks one:
 
-- **tap mode** — when both `Casks/` and `Formula/` exist. Checks: `.agents/skills/jwa-tobrew/` exists with `.claude/skills/jwa-tobrew` as a symlink to it; `docs/adr/` exists; README has `<!-- BEGIN ITEMS -->` / `<!-- END ITEMS -->` markers; `CHANGELOG.md` exists; if the tap embeds a Go CLI (`go.mod` at root), `.goreleaser.yaml` is also at root.
-- **project mode** — when `go.mod`, `Package.swift`, or an `*.xcodeproj`/`*.xcworkspace` exists. Checks: `.env.template` is present; `.gitignore` blocks `.env*`; `.agents/skills/release/` exists with a `.claude` symlink (when present); per kind: Go → `.goreleaser.yaml`; cask → `scripts/release.sh`.
+- **tap mode** — when both `Casks/` and `Formula/` exist. Checks that `agentskills` is on PATH so generated skills can be materialized, `docs/adr/` exists, README has `<!-- BEGIN ITEMS -->` / `<!-- END ITEMS -->` markers, `CHANGELOG.md` exists, and if the tap embeds a Go CLI (`go.mod` at root), `.goreleaser.yaml` is also at root.
+- **project mode** — when `go.mod`, `Package.swift`, or an `*.xcodeproj`/`*.xcworkspace` exists. Checks: `.env.template` is present; `.gitignore` blocks `.env*`; `.agents/skills/release/` exists with harness links from `agentskills link`; per kind: Go → `.goreleaser.yaml`; cask → `scripts/release.sh`.
 
 If neither set of markers is found, `align` errors with "not a tap and not a recognised project".
 

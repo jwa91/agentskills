@@ -15,7 +15,7 @@ Architecture
   - `agentskills release` — validate then package in one step.
 - `tests/` contains pytest tests for the Python skill-author tools.
 - `docs/` contains reference material and research that spans multiple skills.
-- `.github/workflows/` is the release pipeline. `ci.yml` runs `make check` on PRs and pushes to `main`; `release.yml` is tag-driven (`v*`) and runs goreleaser → writes `Formula/agentskills.rb` into `jwa91/homebrew-tap`.
+- `.github/workflows/` is the release pipeline. `ci.yml` runs `make check` on PRs and pushes to `main`; `release.yml` is tag-driven (`v*`) and runs goreleaser → writes `Casks/agentskills.rb` into `jwa91/homebrew-tap`.
 
 Code style
 
@@ -38,6 +38,7 @@ Currently included skills
 - `interactive-learner` — AI tutoring skill that creates interactive HTML courses. See `skills/interactive-learner/`.
 - `mac-cleanup` — Interactive macOS system cleanup that discovers installed tools and frees disk space. See `skills/mac-cleanup/`.
 - `personal-commit-review` — Personal GitHub commit retrospective; turns commit activity into prose with stats and highlights. See `skills/personal-commit-review/`.
+- `release` — Releases the current project to `jwa91/tap` from repo-local `.goreleaser.yaml` or `scripts/release.sh` config. See `skills/release/`.
 - `spec` — Interview-driven spec writing that turns a vague idea into a buildable SPEC.md. See `skills/spec/`.
 - `stackpicker` — Picks language(s), Docker yes/no, and tools for a new project. Reads per-language tool defaults from the Obsidian vault and applies the Agent-Era Codebase Principles. See `skills/stackpicker/`.
 - `vps-dependency-overview` — Offline-first dependency inventory across a Docker-compose monorepo. See `skills/vps-dependency-overview/`.

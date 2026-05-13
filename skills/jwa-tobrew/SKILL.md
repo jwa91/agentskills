@@ -5,7 +5,7 @@ description: Use the `jwa-tobrew` CLI to publish a project to the user's persona
 
 # jwa-tobrew — publish a project to the personal Homebrew tap
 
-`jwa-tobrew` is the CLI that publishes to the tap repo at <https://github.com/jwa91/homebrew-tap>. Its own source lives at <https://github.com/jwa91/jwa-tobrew> (extracted from the tap per ADR 0008). It publishes Go binaries (via GoReleaser), macOS apps (Casks), and other binaries (Formulae). It is one of the `jwa-*` family — siblings today: [`jwa-harden`](https://github.com/jwa91/jwa-harden) (op-run wrapper); planned: `jwa-vps`.
+`jwa-tobrew` is the CLI that publishes to the tap repo at <https://github.com/jwa91/homebrew-tap>. Its own source lives at <https://github.com/jwa91/jwa-tobrew> (extracted from the tap per ADR 0008). It publishes Go binaries via GoReleaser `homebrew_casks`, macOS apps as Casks, and exceptional single-asset Formulae when a Cask is not appropriate. It is one of the `jwa-*` family; related CLIs are integrated by process boundary, not source imports (ADR 0009).
 
 ## Command surface
 
@@ -34,7 +34,7 @@ The full security model lives at `~/dotfiles/docs/security-ground-rules.md` and 
 ## Two release patterns the tap accepts
 
 1. **`jwa-tobrew`-managed** — single-asset items (casks, simple formulas). The CLI tags, releases, hashes, writes the `.rb`, commits to the tap. `bump`/`release` own these.
-2. **Source-repo-managed** — multi-platform Go formulas. The source repo's own `.goreleaser.yaml` has a `brews:` block that writes `Formula/<name>.rb` directly to the tap. `bump`/`release` *refuse* these (they have multiple `url` lines per platform; `jwa-tobrew` would corrupt them). Updates happen via `goreleaser release` in the source repo.
+2. **Source-repo-managed** — Go CLIs and other projects whose own `.goreleaser.yaml` writes `Casks/<name>.rb` directly to the tap via `homebrew_casks`. `bump`/`release` *refuse* multi-asset entries (they have multiple `url` lines per platform; `jwa-tobrew` would corrupt them). Updates happen via `goreleaser release` in the source repo.
 
 Detection: `AssetCount(.rb body) > 1` ⇒ source-repo-managed.
 
@@ -46,7 +46,7 @@ Detection: `AssetCount(.rb body) > 1` ⇒ source-repo-managed.
 - **macOS app** (`*.xcodeproj`, `*.xcworkspace`, `Package.swift`) → writes `scripts/release.sh` for cask publishing.
 - **Other** → pass `--kind formula` and provide the binary path at release time.
 
-All kinds also get `.env.template`, `.gitignore` `.env` block, and a project-level release skill at `.agents/skills/release/SKILL.md` (with `.claude` symlink).
+All kinds also get `.env.template`, `.gitignore` `.env` block, and the generic `release` skill installed by `agentskills` at `.agents/skills/release/SKILL.md` with harness symlinks.
 
 For deeper walk-through of starting a new CLI from scratch, use the `scaffold-cli` skill.
 
@@ -68,6 +68,6 @@ If a change touches the tap or any project that publishes to it, run `jwa-tobrew
 
 - **`$GITHUB_TOKEN not set`** — wrap with `jwa-harden run --` (or fall back to `op run --env-file=.env.template --` directly).
 - **`tap origin is HTTPS but jwa-tobrew pushes over SSH only`** — `git -C ~/developer/homebrew-tap remote set-url origin git@github.com:OWNER/REPO.git`.
-- **`X.rb has N url lines (multi-platform); jwa-tobrew can't safely bump it`** — this is a source-repo-managed item; release it from its own repo via `goreleaser release`, not from here.
+- **`X.rb has N url lines (multi-platform); jwa-tobrew can't safely bump it`** — this is a source-repo-managed item; release it from its own repo via `goreleaser release`, not from the tap.
 - **`could not locate homebrew-tap clone`** — `export BREWTAP_DIR=/path/to/homebrew-tap`.
 - **Sha256 mismatch on a fresh install** — `jwa-tobrew bump <name>`; the asset was likely re-uploaded.
