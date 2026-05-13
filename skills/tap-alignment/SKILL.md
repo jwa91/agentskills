@@ -1,6 +1,6 @@
 ---
 name: tap-alignment
-description: Detect and fix drift between this repo (or a project that publishes to it) and the conventions encoded in `jwa-tobrew`, prek, and the ADRs. Trigger when the user says "align", "is this in line", "any drift", "verify conventions", "what changed since the last convention update", or asks why a particular file/symlink/script is required. Also use this skill when a `prek` hook fails on the `jwa-tobrew-align` step.
+description: Detect and fix drift between a project and the conventions encoded in `jwa-tobrew`, prek, and the tap ADRs. Trigger when the user says "align", "any drift", "verify conventions", or asks why a particular file/symlink/script is required.
 ---
 
 # Keeping the tap and its projects aligned

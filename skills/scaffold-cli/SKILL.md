@@ -1,6 +1,6 @@
 ---
 name: scaffold-cli
-description: Set up a new Go CLI to be installable via the user's personal Homebrew tap (jwa91/tap). Trigger when the user says "new CLI", "scaffold a CLI", "start a Go project for the tap", "make a new tool installable via brew", or asks how to bootstrap a publishable CLI from scratch. For the existing CLI surface see `jwa-tobrew`.
+description: Set up a new Go CLI installable via the personal Homebrew tap. Trigger when the user says "new CLI", "scaffold a CLI", "start a Go project for the tap", or asks how to bootstrap a publishable CLI from scratch.
 ---
 
 # Scaffold a new Go CLI publishable via the tap

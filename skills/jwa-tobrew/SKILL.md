@@ -1,6 +1,6 @@
 ---
 name: jwa-tobrew
-description: Use the `jwa-tobrew` CLI to publish a project to the user's personal Homebrew tap (jwa91/tap). Trigger when the user says "publish to my tap", "add to brew", "make this installable via brew", "release this to my tap", or asks about the `jwa-tobrew` command surface. For drift detection see `tap-alignment`.
+description: Use the `jwa-tobrew` CLI to publish a project to the user's personal Homebrew tap. Trigger when the user says "publish to my tap", "add to brew", "make this installable via brew", or asks about the `jwa-tobrew` command surface.
 ---
 
 # jwa-tobrew — publish a project to the personal Homebrew tap

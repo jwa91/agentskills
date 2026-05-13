@@ -1,6 +1,6 @@
 ---
 name: tap-scaffolding
-description: Modify or extend the scaffolding system inside `jwa-tobrew` (the templates that `init` writes into target projects). Trigger when the user says "add a new scaffold kind", "change what init writes", "update the templates", "add a new file to scaffolds", or asks how the embedded templates are wired. This skill is for maintainers; end-users should use `scaffold-cli`.
+description: Modify or extend the `jwa-tobrew` scaffolding system — the templates that `init` writes into target projects. Trigger when the user says "add a new scaffold kind", "change what init writes", "update the templates", or asks how the embedded templates are wired.
 ---
 
 # How jwa-tobrew's scaffolding system works
