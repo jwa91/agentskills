@@ -1,0 +1,109 @@
+version: 2
+
+project_name: agentskills
+
+# Tag scheme: `cli/vX.Y.Z` for binary releases; per-skill tags
+# (`<skill>/vX.Y.Z`) must never trigger a binary release.
+#
+# OSS goreleaser does not include the `monorepo` block (Pro-only), so we
+# use `git.ignore_tags` to keep skill tags out of the version detection
+# and rely on the operator pushing `cli/v*` tags. Goreleaser strips the
+# `cli/` prefix when forming `{{ .Version }}` because the `name_template`
+# in release/brews uses semver fields derived from the tag's trailing
+# `vX.Y.Z`.
+git:
+  ignore_tags:
+    - "*/v*"
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: agentskills
+    main: ./tools/agentskills
+    binary: agentskills
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    ids:
+      - agentskills
+    formats:
+      - tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^Merge "
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+  groups:
+    - title: Features
+      regexp: "^.*feat(\\(.+\\))??!?:.+$"
+      order: 0
+    - title: Fixes
+      regexp: "^.*fix(\\(.+\\))??!?:.+$"
+      order: 1
+    - title: Refactors
+      regexp: "^.*refactor(\\(.+\\))??!?:.+$"
+      order: 2
+    - title: Other
+      order: 999
+
+# Write Formula/agentskills.rb into jwa91/homebrew-tap. The token resolution
+# matches prehandover: use HOMEBREW_TAP_GITHUB_TOKEN provided by jwa-harden
+# (or `op run` during bootstrap). GoReleaser commits and pushes the formula
+# directly to the tap repo.
+#
+# GoReleaser deprecated `brews` in v2.10 in favor of `homebrew_casks`. This
+# project still uses a Formula because agentskills is a CLI and `brew install`
+# is the expected Homebrew UX for command-line tools. Same call as prehandover
+# — do not "fix" the deprecation warning by switching to homebrew_casks.
+brews:
+  - name: agentskills
+    ids:
+      - default
+    repository:
+      owner: jwa91
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    skip_upload: auto
+    homepage: https://github.com/jwa91/agentskills
+    description: Install and manage agent skills inside a project
+    license: MIT
+    dependencies:
+      - name: git
+    install: |
+      bin.install "agentskills"
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/agentskills --version")
+
+release:
+  github:
+    owner: jwa91
+    name: agentskills
+  draft: false
+  prerelease: auto
