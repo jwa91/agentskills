@@ -7,6 +7,12 @@ follow [SemVer](https://semver.org).
 
 ## [Unreleased]
 
+### Fixed
+
+- Enforced notarization inside the GoReleaser build hook so releases cut via
+  raw `goreleaser release --clean` are notarized (not only releases run via
+  `make release`).
+
 ### Changed
 
 - Added a generic `release` skill that detects repo-local `.goreleaser.yaml`
