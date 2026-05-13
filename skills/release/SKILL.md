@@ -32,6 +32,7 @@ If both files exist, prefer `.goreleaser.yaml` for Go projects and treat the scr
 - Work from a clean git tree on the commit that should be released.
 - Confirm the intended semver tag (`vX.Y.Z`) and release notes from recent commits.
 - Run the project's normal tests before publishing.
+- Run `jwa-tobrew lint` when the repo participates in the `jwa-*` family policy.
 - `jwa-harden doctor` should pass.
 - For signed macOS releases, run `jwa-harden doctor signing`.
 

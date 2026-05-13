@@ -12,6 +12,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/jwa91/agentskills/tools/agentskills/cmd"
@@ -44,36 +45,41 @@ var (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprint(os.Stderr, usage)
-		os.Exit(2)
+	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+}
+
+func run(args []string, stdout, stderr io.Writer) int {
+	if len(args) < 1 {
+		fmt.Fprint(stdout, usage)
+		return 0
 	}
 
-	name := os.Args[1]
-	args := os.Args[2:]
+	name := args[0]
+	cmdArgs := args[1:]
 
 	var err error
 	switch name {
 	case "bootstrap":
-		err = cmd.RunBootstrap(args)
+		err = cmd.RunBootstrap(cmdArgs)
 	case "list":
-		err = cmd.RunList(args)
+		err = cmd.RunList(cmdArgs)
 	case "link":
-		err = cmd.RunLink(args)
+		err = cmd.RunLink(cmdArgs)
 	case "doctor":
-		err = cmd.RunDoctor(args)
+		err = cmd.RunDoctor(cmdArgs)
 	case "version", "-v", "--version":
-		fmt.Printf("agentskills %s (commit %s, built %s)\n", version, commit, date)
-		return
+		fmt.Fprintf(stdout, "agentskills %s (commit %s, built %s)\n", version, commit, date)
+		return 0
 	case "-h", "--help", "help":
-		fmt.Print(usage)
-		return
+		fmt.Fprint(stdout, usage)
+		return 0
 	default:
-		fmt.Fprintf(os.Stderr, "unknown command: %q\n\n%s", name, usage)
-		os.Exit(2)
+		fmt.Fprintf(stderr, "unknown command: %q\n\n%s", name, usage)
+		return 2
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s error: %v\n", name, err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "%s error: %v\n", name, err)
+		return 1
 	}
+	return 0
 }

@@ -13,12 +13,15 @@ description: Use the `jwa-tobrew` CLI to publish a project to the user's persona
 jwa-tobrew add <github-url>     Snapshot a published GitHub release into the tap (no token)
 jwa-tobrew align                Report (or --apply) drift from current tap conventions
 jwa-tobrew bump <name> [ver]    Re-sync an existing tap entry to a published release
+jwa-tobrew completion <shell>   Generate shell completion for bash, zsh, or fish
 jwa-tobrew config               Regenerate tap.toml + tap.local.toml + README items table
 jwa-tobrew deps                 Show dependency overview for every item in the tap
 jwa-tobrew doctor               Check tools, tap location, SSH origin, env
 jwa-tobrew init                 Scaffold release config in the current project
+jwa-tobrew lint                 Run the jwa-* family policy lint rules
 jwa-tobrew release              Tag, GitHub release, and update the tap (run inside a project)
 jwa-tobrew upgrade              Re-install via brew
+jwa-tobrew version              Print build info
 ```
 
 `-h` / `--help` on any subcommand prints flags.
@@ -43,10 +46,11 @@ Detection: `AssetCount(.rb body) > 1` ⇒ source-repo-managed.
 `jwa-tobrew init` auto-detects:
 
 - **Go** (`go.mod`) → writes `.goreleaser.yaml` only. Releases via `goreleaser release --clean` (local or CI tag-driven).
-- **macOS app** (`*.xcodeproj`, `*.xcworkspace`, `Package.swift`) → writes `scripts/release.sh` for cask publishing.
-- **Other** → pass `--kind formula` and provide the binary path at release time.
+- **Swift/macOS app** (`*.xcodeproj`, `*.xcworkspace`, `Package.swift`) → `--kind=swift-cask`, writes `scripts/release.sh` for cask publishing.
+- **Other binary** → pass `--kind formula` or `--kind cask` and provide the artifact path at release time.
+- **VPS/service repo** (`docker-compose.yml`, `compose.yml`) → `--kind=vps`, scaffolds the agent/security contract only until a deploy backend exists.
 
-All kinds also get `.env.template`, `.gitignore` `.env` block, and the generic `release` skill installed by `agentskills` at `.agents/skills/release/SKILL.md` with harness symlinks.
+All kinds also get `.env.template`, `.gitignore` `.env` block, the generic `release` and `jwa-harden` skills installed by `agentskills`, harness symlinks, and a minimal `AGENTS.md` / Cursor rule contract.
 
 For deeper walk-through of starting a new CLI from scratch, use the `scaffold-cli` skill.
 
