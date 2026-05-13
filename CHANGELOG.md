@@ -19,6 +19,8 @@ follow [SemVer](https://semver.org).
   or `scripts/release.sh` and routes releases through `jwa-harden`.
 - Refreshed tap-related docs and skills to refer to `Casks/*.rb` and
   GoReleaser `homebrew_casks` for Go CLI distribution.
+- Standardized GoReleaser archive naming to
+  `{project}_{version}_{os}_{arch}` for family consistency.
 
 ## [0.1.1] — 2026-05-13
 

@@ -35,7 +35,7 @@ git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
 ```
 
-The workflow runs `make check`, then `goreleaser release --clean`, then a smoke test against the published Linux x86_64 archive. The cask is written directly into `jwa91/homebrew-tap/Casks/agentskills.rb` via GoReleaser `homebrew_casks`.
+The workflow runs `make check`, then `goreleaser release --clean`, then a smoke test against the published Linux amd64 archive. The cask is written directly into `jwa91/homebrew-tap/Casks/agentskills.rb` via GoReleaser `homebrew_casks`.
 
 ## Why a Go port?
 
