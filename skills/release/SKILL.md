@@ -69,3 +69,10 @@ The script adds the `v` prefix where needed. Pass the bare version unless the sc
 - `goreleaser` reports a dirty tree: commit, stash, or intentionally discard unrelated local edits before release.
 - `notarytool` or signing identity missing: run `jwa-harden doctor signing` and fix the reported prerequisite.
 - Multi-platform tap entries should not be bumped with `jwa-tobrew bump`; release from the source repo's GoReleaser config instead.
+
+## Operational learnings (CI + hardening)
+
+- Prefer pinned tool versions in workflows over `@latest` (`govulncheck` in particular can raise its minimum Go version and break stable pipelines).
+- Keep vulnerability scanning visible, but avoid blocking merges on standard-library advisories when the fix requires a Go upgrade you are not taking yet; treat CI vulnerability checks as advisory in that phase.
+- When linting rules rely on git metadata, fetch tags in CI (`fetch-depth: 0` or explicit `git fetch --tags`) so version/changelog rules evaluate correctly.
+- Avoid mutating runner git remotes in workflows unless absolutely required; adapt lint rules for CI context instead of rewriting `origin`.
